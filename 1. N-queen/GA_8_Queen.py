@@ -130,8 +130,19 @@ class QueensGA:
     def get_best_fitness_history(self):
         return self._best_fitness_history
 
+    def get_best_fitness(self):
+        if not self._best_fitness_history:
+            return None
+        return max(self._best_fitness_history)
+
+    def append_to_fitness_history(self, value):
+        self._best_fitness_history.append(value)
+
     def get_avg_fitness_history(self):
         return self._avg_fitness_history
+
+    def append_to_avg_fitness_history(self, value):
+        self._avg_fitness_history.append(value)
 
     # ----------------------------- Initialization -----------------------------
 
@@ -328,68 +339,42 @@ class QueensGA:
 
     def run_ga(self, crossover_type="default", mutation_type="default",
                survival_strategy="default"):
-        """
-        Main genetic algorithm loop.
-
-        Returns:
-            best_individual, best_fitness, generations, fitness_history
-        """
-        generation = 0
-
-        # Track best fitness over generations
-        best_fitness_history = []
-        avg_fitness_history = []
-
         while True:
-            # Get population fitness
+            generation = self.get_generation()
             population_fitness = self.get_population_fitness()
 
-            # Find best and average fitness
-            fitnesses = [f for _, f in population_fitness]
+            fitnesses = list(map(lambda x: x[1], population_fitness))
             best_fitness = max(fitnesses)
             avg_fitness = sum(fitnesses) / len(fitnesses)
 
-            # Track history
-            best_fitness_history.append(best_fitness)
-            avg_fitness_history.append(avg_fitness)
-            self._best_fitness_history.append(best_fitness)
-            self._avg_fitness_history.append(avg_fitness)
+            self.append_to_fitness_history(best_fitness)
+            self.append_to_avg_fitness_history(
+                {'generation': generation, 'Average-fitness': avg_fitness})
 
-            # Check termination
             if self.check_termination(best_fitness):
-                # Find best individual
+                best_fitness_history = self.get_best_fitness()
+                avg_fitness_history = self.get_avg_fitness_history()
+
                 best_id = max(population_fitness, key=lambda x: x[1])[0]
                 best_individual = self._pop[best_id]
                 print(f"\nTerminated at generation {generation}")
                 print(f"Best fitness: {best_fitness}")
                 print(f"Total evaluations: {self._evaluations}")
-                return best_individual, best_fitness, generation, best_fitness_history
+                return best_individual, best_fitness, generation, best_fitness_history, avg_fitness_history
 
-            # Select parents
             parent1, parent2 = self.select_parents()
 
-            # Create offspring (2 per generation as per assignment)
             child1, child2 = self.recombine(
                 parent1, parent2, combinatorName=crossover_type)
 
-            # Mutate offspring
             child1 = self.mutate(child1, mutatorName=mutation_type)
             child2 = self.mutate(child2, mutatorName=mutation_type)
 
-            # Survivor selection
             offsprings = [child1, child2]
             new_pop = self.select_survivors(
                 offsprings, strategy=survival_strategy)
             self.set_pop(new_pop)
-
-            # Increment generation
-            generation += 1
             self.increment_generation()
-
-            # Optional: print progress
-            if generation % 100 == 0:
-                print(
-                    f"Generation {generation}: Best fitness = {best_fitness}, Avg = {avg_fitness:.2f}")
 
     # ----------------------------- Termination --------------------------------
 
@@ -639,7 +624,7 @@ def run_experiment(num_runs=3, **ga_params):
         queens_ga = QueensGA(**ga_params)
         queens_ga.initialize_population()
 
-        best_individual, best_fitness, generations, fitness_history = queens_ga.run_ga()
+        best_individual, best_fitness, generations, fitness_history, avg_fitness_history = queens_ga.run_ga()
 
         results.append({
             'run': run + 1,
@@ -648,15 +633,51 @@ def run_experiment(num_runs=3, **ga_params):
             'generations': generations,
             'evaluations': queens_ga.get_evaluations(),
             'fitness_history': fitness_history,
+            'avg_fitness_history': avg_fitness_history,
             'success': best_fitness == 0
         })
 
         print(f"Result: {'SUCCESS' if best_fitness == 0 else 'FAILED'}")
         if best_fitness == 0:
-            print(f"Solution: {best_individual.get_chromosome()}")
+            print(f"Solution: {list(best_individual.get_chromosome())}")
             visualize_chessboard(best_individual)
 
     return results
+
+# Utility table print function
+
+
+def print_summary_table(results):
+    print("\n" + "="*90)
+    print("EXPERIMENT SUMMARY TABLE")
+    print("="*90)
+
+    # Header
+    print(f"{'Run':<6} {'Success':<10} {'Generations':<15} {'Evaluations':<15} {'Best Fitness':<15} {'Solution':<20}")
+    print("-"*90)
+
+    # Data rows
+    for r in results:
+        success_str = "YES" if r['success'] else "NO"
+        solution_str = r['best_individual'].get_chromosome(
+        ) if r['success'] else "N/A"
+
+        print(f"{r['run']:<6} {success_str:<10} {r['generations']:<15,} {r['evaluations']:<15,} {r['best_fitness']:<15,} {list(solution_str)}")
+
+    print("-"*90)
+
+    # Statistics
+    successes = sum(1 for r in results if r['success'])
+    success_rate = (successes / len(results)) * 100
+    avg_generations = sum(r['generations'] for r in results) / len(results)
+    avg_evaluations = sum(r['evaluations'] for r in results) / len(results)
+
+    print(f"\n{'STATISTICS':<20}")
+    print(f"{'Success Rate:':<20} {successes:,}/{len(results):,} ({success_rate:.1f}%)")
+    print(f"{'Avg Generations:':<20} {avg_generations:,.2f}")
+    print(f"{'Avg Evaluations:':<20} {avg_evaluations:,.2f}")
+
+    print("="*90)
 
 
 # ############################### Main Execution ###############################
@@ -666,32 +687,21 @@ if __name__ == "__main__":
     print("                              N-Queens Genetic Algorithm")
     print("="*90)
 
-    # Task 1: Baseline implementation with required settings
+    # Baseline implementation
     print("\n" + "="*60)
-    print("Task 1: Baseline Implementation")
+    print("Baseline implementation")
     print("="*60)
 
     results = run_experiment(
-        num_runs=3,
+        num_runs=10_000,
         n=8,
         pop_size=100,
         mutation_prob=0.5,
         recombination_rate=1.0,
         max_evaluations=10000
     )
+    print_summary_table(results)
 
-    # Print summary
-    print("\n" + "="*60)
-    print("Summary")
-    print("="*60)
-    successes = sum(1 for r in results if r['success'])
-    print(f"Success rate: {successes}/{len(results)}")
-    avg_generations = sum(r['generations'] for r in results) / len(results)
-    print(f"Average generations: {avg_generations:.1f}")
-
-
-# Task 1: Baseline implementation
-# TODO: Run with baseline settings
 
 # Task 2: Parameter sensitivity
 # TODO: Test different mutation probabilities and recombination rates
