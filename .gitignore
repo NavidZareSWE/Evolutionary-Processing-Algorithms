@@ -52,3 +52,5 @@ lerna-debug.log*
 
 # Api Testings
 *API_Test
+
+test*.py
