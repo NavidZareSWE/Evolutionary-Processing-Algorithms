@@ -4,176 +4,13 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pprint import pprint
 
+# ############################### Constants ####################################
+
 INITIAL_POP_SIZE = 100
 VALID_PERM_VALUES = '01234567'
 
 
-class QueensGA:
-    def __init__(self, n=8, pop_size=100, mutation_prob=0.5,
-                 recombination_rate=1.0, max_evaluations=10000):
-        self._n = n
-        self._pop_size = pop_size
-        self._mutation_prob = mutation_prob
-        self._recombination_rate = recombination_rate
-        self._max_evaluations = max_evaluations
-        self._evaluations = 0
-        self._generation = 0
-        self._best_fitness_history = []
-        self._avg_fitness_history = []
-        self._pop = {}
-
-        # Parents
-        self._parent1 = None
-        self._parent2 = None
-
-        # ############################### Initialization ###############################
-
-    def initialize_population(self):
-        def scramble_string(s):
-            arr = list(s)
-            random.shuffle(arr)
-            return ''.join(arr)
-
-        print("=" * 50)
-        print("          INITIALIZING POPULATION")
-        print("=" * 50)
-
-        for i in range(self._pop_size):
-            chromosome = scramble_string(VALID_PERM_VALUES)
-            indiv = Individual(chromosome)
-            # Key: indiv's ID, Value: indiv object
-            self._pop[indiv.get_id()] = indiv
-
-    def print_pop(self):
-        for id, indiv in self._pop.items():
-            pprint(f"Individual ID {id}: {vars(indiv)}")
-
-    def get_pop_size(self):
-        return self._pop_size
-
-    def get_pop(self):
-        return self._pop
-
-    def get_parent1(self):
-        return self._parent1
-
-    def get_parent2(self):
-        return self._parent2
-
-    def set_pop(self, value):
-        self._pop = value
-
-    def get_mutation_prob(self):
-        return self._mutation_prob
-
-    def set_mutation_prob(self, value):
-        self._mutation_prob = value
-
-    def get_recombination_rate(self):
-        return self._recombination_rate
-
-    def set_recombination_rate(self, value):
-        self._recombination_rate = value
-
-    def get_max_evaluations(self):
-        return self._max_evaluations
-
-    def get_evaluations(self):
-        return self._evaluations
-
-    def increment_evaluations(self):
-        self._evaluations += 1
-
-    def get_generation(self):
-        return self._generation
-
-    def increment_generation(self):
-        self._generation += 1
-
-# ############################### Fitness Function ###############################
-
-    def get_fitness(self, indiv):
-        if indiv.is_fitness_calculated():
-            return indiv.get_fitness()
-        chromosome = indiv._chromosome
-        fitness = 0
-        for ith_queen in range(self._n):
-            ith_queen_pos = int(chromosome[ith_queen])
-            for j in range(ith_queen + 1, self._n):
-                check_factor = (j - ith_queen)
-                gene_to_compare = int(chromosome[j])
-                if gene_to_compare == ith_queen_pos + check_factor or gene_to_compare == ith_queen_pos - check_factor:
-                    fitness -= 1
-        indiv.set_fitness(fitness)
-        return fitness
-
-    def get_population_fitness(self):
-        fitness_pairs = []
-        for id, indiv in self._pop.items():
-            fitness = self.get_fitness(indiv)
-            fitness_pairs.append((id, fitness))
-        return fitness_pairs
-
-    def get_best_fitness_history(self):
-        return self._best_fitness_history
-
-    def get_avg_fitness_history(self):
-        return self._avg_fitness_history
-
-# ############################### Parent Selection #############################
-
-    def select_parents(self):
-        all_ids = np.array(list(self._pop.keys()))
-
-        # Randomly select 5 individuals
-        if len(all_ids) < 5:
-            selected_ids = all_ids
-        else:
-            # pick 5 unique IDs at random from all_ids
-            selected_ids = np.random.choice(all_ids, size=5, replace=False)
-
-        candidates = []
-        for id in selected_ids:
-            indiv = self._pop[id]
-            fitness = self.get_fitness(indiv)
-            candidates.append((id, indiv, fitness))
-
-        # print unsorted candidates
-        # for id, indiv, fitness in candidates:
-        #     print(f"{id:>4}  {fitness:8.4f}  {indiv}")
-
-        # Sort by fitness (descending - less negative is better)
-        candidates.sort(key=lambda x: x[2], reverse=True)
-
-        # print sorted candidates
-        # for id, indiv, fitness in candidates:
-        #     print(f"{id:>4}  {fitness:8.4f}  {indiv}")
-
-        # Select best 2
-        self._parent1 = candidates[0][1]
-        self._parent2 = candidates[1][1]
-
-        return self._parent1, self._parent2
-    # ############################### Termination ##################################
-
-    def check_termination(generation, max_evaluations, best_fitness, n=8):
-        """
-        Check if termination condition is met.
-        Stop if: solution found OR max evaluations reached.
-
-        Args:
-            generation: current generation number
-            max_evaluations: maximum allowed evaluations
-            best_fitness: best fitness in current population
-            n: board size (to calculate max possible fitness)
-        Returns:
-            boolean (True if should terminate)
-        """
-        pass
-
-
-# ############################### Representation ###############################
-
+# ############################### Individual Class #############################
 
 class Individual:
     # Class variable to track the next available ID
@@ -226,23 +63,358 @@ class Individual:
         return self._id
 
 
-# ############################### Crossover ####################################
+# ############################### QueensGA Class ###############################
 
+class QueensGA:
+    def __init__(self, n=8, pop_size=100, mutation_prob=0.5,
+                 recombination_rate=1.0, max_evaluations=10000):
+        self._n = n
+        self._pop_size = pop_size
+        self._mutation_prob = mutation_prob
+        self._recombination_rate = recombination_rate
+        self._max_evaluations = max_evaluations
+        self._evaluations = 0
+        self._generation = 0
+        self._best_fitness_history = []
+        self._avg_fitness_history = []
+        self._pop = {}
+
+        # Parents
+        self._parent1 = None
+        self._parent2 = None
+
+    # ----------------------------- Getters/Setters ----------------------------
+
+    def get_pop_size(self):
+        return self._pop_size
+
+    def get_pop(self):
+        return self._pop
+
+    def get_parent1(self):
+        return self._parent1
+
+    def get_parent2(self):
+        return self._parent2
+
+    def set_pop(self, value):
+        self._pop = value
+
+    def get_mutation_prob(self):
+        return self._mutation_prob
+
+    def set_mutation_prob(self, value):
+        self._mutation_prob = value
+
+    def get_recombination_rate(self):
+        return self._recombination_rate
+
+    def set_recombination_rate(self, value):
+        self._recombination_rate = value
+
+    def get_max_evaluations(self):
+        return self._max_evaluations
+
+    def get_evaluations(self):
+        return self._evaluations
+
+    def increment_evaluations(self):
+        self._evaluations += 1
+
+    def get_generation(self):
+        return self._generation
+
+    def increment_generation(self):
+        self._generation += 1
+
+    def get_best_fitness_history(self):
+        return self._best_fitness_history
+
+    def get_avg_fitness_history(self):
+        return self._avg_fitness_history
+
+    # ----------------------------- Initialization -----------------------------
+
+    def initialize_population(self):
+        def scramble_string(s):
+            arr = list(s)
+            random.shuffle(arr)
+            return ''.join(arr)
+
+        print("=" * 50)
+        print("          INITIALIZING POPULATION")
+        print("=" * 50)
+
+        for i in range(self._pop_size):
+            chromosome = scramble_string(VALID_PERM_VALUES)
+            indiv = Individual(chromosome)
+            # Key: indiv's ID, Value: indiv object
+            self._pop[indiv.get_id()] = indiv
+
+    def print_pop(self):
+        for id, indiv in self._pop.items():
+            pprint(f"Individual ID {id}: {vars(indiv)}")
+
+    # ----------------------------- Fitness Function ---------------------------
+
+    def get_fitness(self, indiv):
+        if indiv.is_fitness_calculated():
+            return indiv.get_fitness()
+        chromosome = indiv._chromosome
+        fitness = 0
+        for ith_queen in range(self._n):
+            ith_queen_pos = int(chromosome[ith_queen])
+            for j in range(ith_queen + 1, self._n):
+                check_factor = (j - ith_queen)
+                gene_to_compare = int(chromosome[j])
+                if gene_to_compare == ith_queen_pos + check_factor or gene_to_compare == ith_queen_pos - check_factor:
+                    fitness -= 1
+        indiv.set_fitness(fitness)
+        self._evaluations += 1
+        return fitness
+
+    def get_population_fitness(self):
+        fitness_pairs = []
+        for id, indiv in self._pop.items():
+            fitness = self.get_fitness(indiv)
+            fitness_pairs.append((id, fitness))
+        return fitness_pairs
+
+    # ----------------------------- Parent Selection ---------------------------
+
+    def select_parents(self):
+        all_ids = np.array(list(self._pop.keys()))
+
+        # Randomly select 5 individuals
+        if len(all_ids) < 5:
+            selected_ids = all_ids
+        else:
+            # pick 5 unique IDs at random from all_ids
+            selected_ids = np.random.choice(all_ids, size=5, replace=False)
+
+        candidates = []
+        for id in selected_ids:
+            indiv = self._pop[id]
+            fitness = self.get_fitness(indiv)
+            candidates.append((id, indiv, fitness))
+
+        # print unsorted candidates
+        # for id, indiv, fitness in candidates:
+        #     print(f"{id:>4}  {fitness:8.4f}  {indiv}")
+
+        # Sort by fitness (descending - less negative is better)
+        candidates.sort(key=lambda x: x[2], reverse=True)
+
+        # print sorted candidates
+        # for id, indiv, fitness in candidates:
+        #     print(f"{id:>4}  {fitness:8.4f}  {indiv}")
+
+        # Select best 2
+        self._parent1 = candidates[0][1]
+        self._parent2 = candidates[1][1]
+
+        return self._parent1, self._parent2
+
+    # ----------------------------- Recombination ------------------------------
+
+    def recombine(self, parent1, parent2, combinatorName="default"):
+        current_gen = self.get_generation()
+
+        match combinatorName:
+            case "default" | "cut_and_fill":
+                chromosome_1, chromosome_2 = crossover_cut_and_fill(
+                    parent1, parent2
+                )
+            case "pmx":
+                chromosome_1, chromosome_2 = crossover_pmx(
+                    parent1, parent2
+                )
+            case "2_cut":
+                chromosome_1, chromosome_2 = crossover_n_cut(
+                    parent1, parent2, n_cuts=2
+                )
+            case "3_cut":
+                chromosome_1, chromosome_2 = crossover_n_cut(
+                    parent1, parent2, n_cuts=3
+                )
+            case _:
+                raise ValueError(
+                    f"Unknown combinator name:   '{combinatorName}'. "
+                    f"Available: default, cut_and_fill, pmx, 2_cut, 3_cut"
+                )
+
+        if is_valid_chromosome(chromosome_1) and is_valid_chromosome(chromosome_2):
+            child1 = create_individual(
+                chromosome_1, generationBirth=current_gen)
+            child2 = create_individual(
+                chromosome_2, generationBirth=current_gen)
+
+            return child1, child2
+        else:
+            raise ValueError(
+                "Children creation failed! Child(ren) is/are NOT valid")
+
+    # ----------------------------- Mutation -----------------------------------
+
+    def mutate(self, individual, mutatorName="default"):
+        original_chromosome = individual.get_chromosome()
+
+        match mutatorName:
+            case "default" | "swap":
+                mutated_chromosome = mutate_swap(
+                    original_chromosome, self._mutation_prob
+                )
+            case "bitwise":
+                mutated_chromosome = mutate_bitwise(
+                    original_chromosome, self._mutation_prob
+                )
+
+            case _:
+                raise ValueError(
+                    f"Unknown mutator name: '{mutatorName}'. "
+                    f"Available: default, swap, bitwise"
+                )
+
+        if is_valid_chromosome(mutated_chromosome):
+            mutated_individual = individual
+            mutated_individual.set_chromosome(mutated_chromosome)
+            return mutated_individual
+        else:
+            raise ValueError(
+                "Mutation failed! Mutated chromosome is NOT valid"
+            )
+
+    # ----------------------------- Survivor Selection -------------------------
+
+    def select_survivors(self, offsprings, strategy="generational", n_elite=2):
+        child1, child2 = offsprings[0], offsprings[1]
+        population_fitness = self.get_population_fitness()
+        child1_fitness = self.get_fitness(child1)
+        child2_fitness = self.get_fitness(child2)
+
+        match strategy:
+            case "default" | "fitness_based":
+                replaced_id1, replaced_id2 = fitness_based_replacement(
+                    population_fitness,
+                    child1_fitness,
+                    child2_fitness
+                )
+
+                # Shallow copy of _pop
+                new_pop = dict(self._pop)
+
+                if replaced_id1 is not None:
+                    del new_pop[replaced_id1]
+                    new_pop[child1.get_id()] = child1
+
+                if replaced_id2 is not None:
+                    del new_pop[replaced_id2]
+                    new_pop[child2.get_id()] = child2
+
+            case "generational":
+                new_pop = generational_replacement(self._pop)
+
+            case "elitism":
+                # Elitism: keep n_elite best
+                new_pop = elitism_replacement(offsprings, n_elite)
+
+            case _:
+                raise ValueError(
+                    f"Unknown survival strategy: '{strategy}'. "
+                    f"Available: generational, elitism"
+                )
+
+        return new_pop
+
+    def run_ga(self, crossover_type="default", mutation_type="default",
+               survival_strategy="default"):
+        """
+        Main genetic algorithm loop.
+
+        Returns:
+            best_individual, best_fitness, generations, fitness_history
+        """
+        generation = 0
+
+        # Track best fitness over generations
+        best_fitness_history = []
+        avg_fitness_history = []
+
+        while True:
+            # Get population fitness
+            population_fitness = self.get_population_fitness()
+
+            # Find best and average fitness
+            fitnesses = [f for _, f in population_fitness]
+            best_fitness = max(fitnesses)
+            avg_fitness = sum(fitnesses) / len(fitnesses)
+
+            # Track history
+            best_fitness_history.append(best_fitness)
+            avg_fitness_history.append(avg_fitness)
+            self._best_fitness_history.append(best_fitness)
+            self._avg_fitness_history.append(avg_fitness)
+
+            # Check termination
+            if self.check_termination(best_fitness):
+                # Find best individual
+                best_id = max(population_fitness, key=lambda x: x[1])[0]
+                best_individual = self._pop[best_id]
+                print(f"\nTerminated at generation {generation}")
+                print(f"Best fitness: {best_fitness}")
+                print(f"Total evaluations: {self._evaluations}")
+                return best_individual, best_fitness, generation, best_fitness_history
+
+            # Select parents
+            parent1, parent2 = self.select_parents()
+
+            # Create offspring (2 per generation as per assignment)
+            child1, child2 = self.recombine(
+                parent1, parent2, combinatorName=crossover_type)
+
+            # Mutate offspring
+            child1 = self.mutate(child1, mutatorName=mutation_type)
+            child2 = self.mutate(child2, mutatorName=mutation_type)
+
+            # Survivor selection
+            offsprings = [child1, child2]
+            new_pop = self.select_survivors(
+                offsprings, strategy=survival_strategy)
+            self.set_pop(new_pop)
+
+            # Increment generation
+            generation += 1
+            self.increment_generation()
+
+            # Optional: print progress
+            if generation % 100 == 0:
+                print(
+                    f"Generation {generation}: Best fitness = {best_fitness}, Avg = {avg_fitness:.2f}")
+
+    # ----------------------------- Termination --------------------------------
+
+    def check_termination(self, best_fitness):
+        if best_fitness == 0 or self._evaluations >= self._max_evaluations:
+            return True
+        return False
+
+
+# ############################### Crossover Functions ##########################
 
 def crossover_cut_and_fill(parent1, parent2):
-    parent1_chromose = parent1.get_chromosome()
-    parent2_chromose = parent2.get_chromosome()
-    length = len(parent1_chromose)
+    parent1_chromosome = parent1.get_chromosome()
+    parent2_chromosome = parent2.get_chromosome()
+    length = len(parent1_chromosome)
     # visualize_chromosome(parent1, parent2)
 
     cut_point = np.random.randint(0, length)
 
-    child1 = parent1_chromose[:cut_point]
-    child2 = parent2_chromose[:cut_point]
+    child1 = parent1_chromosome[:cut_point]
+    child2 = parent2_chromosome[:cut_point]
 
     # --- Fill child1 ---
     used = set(child1)
-    for gene in parent2_chromose:
+    for gene in parent2_chromosome:
         if gene not in used:
             child1 += gene
             if len(child1) == length:
@@ -250,7 +422,7 @@ def crossover_cut_and_fill(parent1, parent2):
 
     # --- Fill child2 ---
     used = set(child2)
-    for gene in parent1_chromose:
+    for gene in parent1_chromosome:
         if gene not in used:
             child2 += gene
             if len(child2) == length:
@@ -284,20 +456,26 @@ def crossover_n_cut(parent1, parent2, n_cuts=2):
     """
     pass
 
-# ############################### Mutation #####################################
 
+# ############################### Mutation Functions ###########################
 
-def mutate_swap(individual, mutation_prob):
-    """
-    Swap mutation: randomly swap two positions with given probability.
+def mutate_swap(chromosome, mutation_probability=0.1):
+    if np.random.random() > mutation_probability:
+        return chromosome
 
-    Args:
-        individual: chromosome to mutate
-        mutation_prob: probability of mutation occurring
-    Returns:
-        mutated individual
-    """
-    pass
+    chromosome_len = len(chromosome)
+    if chromosome_len < 2:
+        return chromosome
+
+    i, j = np.random.choice(chromosome_len, size=2, replace=False)
+    if i > j:
+        i, j = j, i
+    start = chromosome[:i]
+    middle = chromosome[i+1:j]
+    end = chromosome[j+1:]
+    new_mutated_chromosome = start + \
+        chromosome[j] + middle + chromosome[i] + end
+    return new_mutated_chromosome
 
 
 def mutate_bitwise(individual, mutation_prob):
@@ -313,7 +491,37 @@ def mutate_bitwise(individual, mutation_prob):
     """
     pass
 
-# ############################### Survival Strategy ############################
+
+# ############################### Survival Strategy Functions ##################
+
+def fitness_based_replacement(population_fitness, child1_fitness, child2_fitness):
+    population_fitness.sort(key=lambda x: x[1], reverse=True)
+
+    replaced_id1 = None
+    replaced_id2 = None
+
+    if child1_fitness >= child2_fitness:
+        better_child_fitness = child1_fitness
+        worse_child_fitness = child2_fitness
+        first_is_child1 = True
+    else:
+        better_child_fitness = child2_fitness
+        worse_child_fitness = child1_fitness
+        first_is_child1 = False
+
+    for id, fitness in population_fitness:
+        if replaced_id1 is None and fitness < better_child_fitness:
+            replaced_id1 = id
+            continue
+
+        if replaced_id2 is None and fitness < worse_child_fitness:
+            replaced_id2 = id
+            break
+
+    if not first_is_child1:
+        replaced_id1, replaced_id2 = replaced_id2, replaced_id1
+
+    return replaced_id1, replaced_id2
 
 
 def generational_replacement(population, offspring, fitnesses, offspring_fitnesses):
@@ -347,41 +555,14 @@ def elitism_replacement(population, offspring, fitnesses, offspring_fitnesses, n
     pass
 
 
-# ############################### Main GA Loop #################################
-
-
-def genetic_algorithm(pop_size=100, offspring_per_gen=2, mutation_prob=0.5,
-                      crossover_prob=1.0, max_evaluations=10000, n=8,
-                      crossover_type='cut_and_fill', mutation_type='swap',
-                      survival_strategy='generational', n_elite=2):
-    """
-    Main genetic algorithm loop.
-
-    Args:
-        pop_size: population size
-        offspring_per_gen: number of offspring to create per generation
-        mutation_prob: probability of mutation
-        crossover_prob: probability of crossover (recombination rate)
-        max_evaluations: maximum fitness evaluations before stopping
-        n: board size (8, 10, 12, 20...)
-        crossover_type: 'cut_and_fill', 'pmx', '2_cut', '3_cut'
-        mutation_type: 'swap' or 'bitwise'
-        survival_strategy: 'generational' or 'elitism'
-        n_elite: number of elite individuals (if using elitism)
-    Returns:
-        best_solution, best_fitness, generation_count, fitness_history
-    """
-    pass
-
 # ############################### Utility Functions ############################
-
 
 def is_valid_chromosome(chromosome, n=8):
     if len(chromosome) != n:
         raise ValueError(
             f"Invalid length: expected {n}, got {len(chromosome)}")
     if not chromosome.isdigit():
-        raise ValueError("Chromosome contains non-digit characters")
+        raise ValueError("chromosome contains non-digit characters")
 
     try:
         positions = [int(c) for c in chromosome]
@@ -393,7 +574,7 @@ def is_valid_chromosome(chromosome, n=8):
             raise ValueError(
                 f"Invalid position {pos}: must be between 0 and {n-1}")
     if len(set(positions)) != n:
-        raise ValueError("Chromosome has duplicate values")
+        raise ValueError("chromosome has duplicate values")
 
     expected_set = set(range(n))
     actual_set = set(positions)
@@ -448,35 +629,65 @@ def plot_convergence(fitness_history):
 
 
 def run_experiment(num_runs=3, **ga_params):
-    """
-    Run GA multiple times and collect statistics.
+    results = []
 
-    Args:
-        num_runs: number of independent runs
-        ga_params: parameters to pass to genetic_algorithm()
-    Returns:
-        results dictionary with statistics
-    """
-    pass
+    for run in range(num_runs):
+        print(f"\n{'='*60}")
+        print(f"Run {run + 1}/{num_runs}")
+        print(f"{'='*60}")
+
+        queens_ga = QueensGA(**ga_params)
+        queens_ga.initialize_population()
+
+        best_individual, best_fitness, generations, fitness_history = queens_ga.run_ga()
+
+        results.append({
+            'run': run + 1,
+            'best_individual': best_individual,
+            'best_fitness': best_fitness,
+            'generations': generations,
+            'evaluations': queens_ga.get_evaluations(),
+            'fitness_history': fitness_history,
+            'success': best_fitness == 0
+        })
+
+        print(f"Result: {'SUCCESS' if best_fitness == 0 else 'FAILED'}")
+        if best_fitness == 0:
+            print(f"Solution: {best_individual.get_chromosome()}")
+            visualize_chessboard(best_individual)
+
+    return results
 
 
 # ############################### Main Execution ###############################
+
 if __name__ == "__main__":
     print("="*90)
     print("                              N-Queens Genetic Algorithm")
     print("="*90)
-    queens_ga = QueensGA()
-    queens_ga.initialize_population()
-    parent1, parent2 = queens_ga.select_parents()
-    visualize_chromosome(parent1)
-    visualize_chessboard(parent1)
-    visualize_chromosome(parent2)
-    visualize_chessboard(parent2)
-    child1, child2 = crossover_cut_and_fill(parent1, parent2)
-    if (is_valid_chromosome(child1) and is_valid_chromosome(child2)):
-        queens_ga.increment_generation()
-        create_individual(child1, queens_ga.get_generation())
-        create_individual(child2, queens_ga.get_generation())
+
+    # Task 1: Baseline implementation with required settings
+    print("\n" + "="*60)
+    print("Task 1: Baseline Implementation")
+    print("="*60)
+
+    results = run_experiment(
+        num_runs=3,
+        n=8,
+        pop_size=100,
+        mutation_prob=0.5,
+        recombination_rate=1.0,
+        max_evaluations=10000
+    )
+
+    # Print summary
+    print("\n" + "="*60)
+    print("Summary")
+    print("="*60)
+    successes = sum(1 for r in results if r['success'])
+    print(f"Success rate: {successes}/{len(results)}")
+    avg_generations = sum(r['generations'] for r in results) / len(results)
+    print(f"Average generations: {avg_generations:.1f}")
 
 
 # Task 1: Baseline implementation
