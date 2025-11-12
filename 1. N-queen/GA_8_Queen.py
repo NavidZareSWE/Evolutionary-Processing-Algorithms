@@ -2,12 +2,7 @@ import random
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from pprint import pprint
-
-# ############################### Constants ####################################
-
-INITIAL_POP_SIZE = 100
-VALID_PERM_VALUES = '01234567'
+import pprint
 
 
 # ############################### Individual Class #############################
@@ -147,39 +142,48 @@ class QueensGA:
     # ----------------------------- Initialization -----------------------------
 
     def initialize_population(self):
-        def scramble_string(s):
-            arr = list(s)
-            random.shuffle(arr)
-            return ''.join(arr)
+        def scramble_array(arr):
+            arr_copy = np.copy(arr)
+            np.random.shuffle(arr_copy)
+            return arr_copy
 
         print("=" * 50)
         print("          INITIALIZING POPULATION")
         print("=" * 50)
 
         for i in range(self._pop_size):
-            chromosome = scramble_string(VALID_PERM_VALUES)
+            chromosome = scramble_array(np.arange(self._n))
             indiv = Individual(chromosome)
             # Key: indiv's ID, Value: indiv object
             self._pop[indiv.get_id()] = indiv
 
     def print_pop(self):
         for id, indiv in self._pop.items():
-            pprint(f"Individual ID {id}: {vars(indiv)}")
+            print(f"Individual ID [{id}]:")
+            pprint.pp(vars(indiv), indent=5)
 
     # ----------------------------- Fitness Function ---------------------------
 
     def get_fitness(self, indiv):
         if indiv.is_fitness_calculated():
             return indiv.get_fitness()
+
         chromosome = indiv._chromosome
         fitness = 0
+
+        chromosome = np.array(chromosome)
+
         for ith_queen in range(self._n):
             ith_queen_pos = int(chromosome[ith_queen])
             for j in range(ith_queen + 1, self._n):
-                check_factor = (j - ith_queen)
+                check_factor = j - ith_queen
                 gene_to_compare = int(chromosome[j])
-                if gene_to_compare == ith_queen_pos + check_factor or gene_to_compare == ith_queen_pos - check_factor:
+                if (
+                    gene_to_compare == ith_queen_pos + check_factor
+                    or gene_to_compare == ith_queen_pos - check_factor
+                ):
                     fitness -= 1
+
         indiv.set_fitness(fitness)
         self._evaluations += 1
         return fitness
@@ -201,7 +205,7 @@ class QueensGA:
             selected_ids = all_ids
         else:
             # pick 5 unique IDs at random from all_ids
-            selected_ids = np.random.choice(all_ids, size=5, replace=False)
+            selected_ids = np.random.choice(all_ids, size=5, replace=True)
 
         candidates = []
         for id in selected_ids:
@@ -254,7 +258,7 @@ class QueensGA:
                     f"Available: default, cut_and_fill, pmx, 2_cut, 3_cut"
                 )
 
-        if is_valid_chromosome(chromosome_1) and is_valid_chromosome(chromosome_2):
+        if is_valid_chromosome(chromosome_1, self._n) and is_valid_chromosome(chromosome_2, self._n):
             child1 = create_individual(
                 chromosome_1, generationBirth=current_gen)
             child2 = create_individual(
@@ -286,7 +290,7 @@ class QueensGA:
                     f"Available: default, swap, bitwise"
                 )
 
-        if is_valid_chromosome(mutated_chromosome):
+        if is_valid_chromosome(mutated_chromosome, self._n):
             mutated_individual = individual
             mutated_individual.set_chromosome(mutated_chromosome)
             return mutated_individual
@@ -343,7 +347,7 @@ class QueensGA:
             generation = self.get_generation()
             population_fitness = self.get_population_fitness()
 
-            fitnesses = list(map(lambda x: x[1], population_fitness))
+            fitnesses = [fit for _, fit in population_fitness]
             best_fitness = max(fitnesses)
             avg_fitness = sum(fitnesses) / len(fitnesses)
 
@@ -386,9 +390,10 @@ class QueensGA:
 
 # ############################### Crossover Functions ##########################
 
+
 def crossover_cut_and_fill(parent1, parent2):
-    parent1_chromosome = parent1.get_chromosome()
-    parent2_chromosome = parent2.get_chromosome()
+    parent1_chromosome = np.asarray(parent1.get_chromosome())
+    parent2_chromosome = np.asarray(parent2.get_chromosome())
     length = len(parent1_chromosome)
     # visualize_chromosome(parent1, parent2)
 
@@ -398,20 +403,24 @@ def crossover_cut_and_fill(parent1, parent2):
     child2 = parent2_chromosome[:cut_point]
 
     # --- Fill child1 ---
-    used = set(child1)
-    for gene in parent2_chromosome:
+    used = set(int(gene) for gene in child1)
+    idx = cut_point
+    while len(child1) < length:
+        pos = idx % length
+        gene = parent2_chromosome[pos]
         if gene not in used:
-            child1 += gene
-            if len(child1) == length:
-                break
+            child1 = np.append(child1, gene)
+        idx += 1
 
     # --- Fill child2 ---
-    used = set(child2)
-    for gene in parent1_chromosome:
+    used = set(int(gene) for gene in child2)
+    idx = cut_point
+    while len(child2) < length:
+        pos = idx % length
+        gene = parent1_chromosome[pos]
         if gene not in used:
-            child2 += gene
-            if len(child2) == length:
-                break
+            child2 = np.append(child2, gene)
+        idx += 1
 
     return child1, child2
 
@@ -443,23 +452,20 @@ def crossover_n_cut(parent1, parent2, n_cuts=2):
 
 
 # ############################### Mutation Functions ###########################
-
+# chromosome.copy() creates Deep Copy
 def mutate_swap(chromosome, mutation_probability=0.1):
     if np.random.random() > mutation_probability:
-        return chromosome
+        return chromosome.copy()
 
     chromosome_len = len(chromosome)
     if chromosome_len < 2:
-        return chromosome
+        return chromosome.copy()
 
     i, j = np.random.choice(chromosome_len, size=2, replace=False)
-    if i > j:
-        i, j = j, i
-    start = chromosome[:i]
-    middle = chromosome[i+1:j]
-    end = chromosome[j+1:]
-    new_mutated_chromosome = start + \
-        chromosome[j] + middle + chromosome[i] + end
+    new_mutated_chromosome = chromosome.copy()
+    new_mutated_chromosome[i], new_mutated_chromosome[j] = (
+        new_mutated_chromosome[j], new_mutated_chromosome[i]
+    )
     return new_mutated_chromosome
 
 
@@ -541,18 +547,50 @@ def elitism_replacement(population, offspring, fitnesses, offspring_fitnesses, n
 
 
 # ############################### Utility Functions ############################
+# Utility table print function
+
+
+def print_summary_table(results):
+    print("\n" + "="*90)
+    print("EXPERIMENT SUMMARY TABLE")
+    print("="*90)
+
+    # Header
+    print(f"{'Run':<6} {'Success':<10} {'Generations':<15} {'Evaluations':<15} {'Best Fitness':<15} {'Solution':<20}")
+    print("-"*90)
+
+    # Data rows
+    for r in results:
+        success_str = "YES" if r['success'] else "NO"
+        solution_str = r['best_individual'].get_chromosome(
+        ) if r['success'] else "N/A"
+
+        print(f"{r['run']:<6} {success_str:<10} {r['generations']:<15,} {r['evaluations']:<15,} {r['best_fitness']:<15,} {solution_str}")
+
+    print("-"*90)
+
+    # Statistics
+    successes = sum(1 for r in results if r['success'])
+    success_rate = (successes / len(results)) * 100
+    avg_generations = sum(r['generations'] for r in results) / len(results)
+    avg_evaluations = sum(r['evaluations'] for r in results) / len(results)
+
+    print(f"\n{'STATISTICS':<20}")
+    print(f"{'Success Rate:':<20} {successes:,}/{len(results):,} ({success_rate:.1f}%)")
+    print(f"{'Avg Generations:':<20} {avg_generations:,.2f}")
+    print(f"{'Avg Evaluations:':<20} {avg_evaluations:,.2f}")
+
+    print("="*90)
+
 
 def is_valid_chromosome(chromosome, n=8):
     if len(chromosome) != n:
         raise ValueError(
             f"Invalid length: expected {n}, got {len(chromosome)}")
-    if not chromosome.isdigit():
-        raise ValueError("chromosome contains non-digit characters")
+    if not np.issubdtype(chromosome.dtype, np.integer):
+        raise ValueError("chromosome must contain integers")
 
-    try:
-        positions = [int(c) for c in chromosome]
-    except ValueError:
-        raise ValueError("Could not convert chromosome to integers")
+    positions = chromosome.astype(int)
 
     for pos in positions:
         if pos < 0 or pos >= n:
@@ -582,15 +620,15 @@ def visualize_chessboard(individual):
         result_str = ""
         print("\nChessboard:")
         for i in range(n):
-            index = chromosome.index(str(i))
+            index = int(np.where(chromosome == i)[0][0])
             for j in range(n):
                 if j != index:
                     result_str += ".\t"
                 else:
                     result_str += "Q\t"
             result_str += "\n"
-    except:
-        print("Something went wrong when visualizing the chessboard.")
+    except Exception as e:
+        print(f"Something went wrong when visualizing the chessboard: {e}")
     else:
         print(result_str)
 
@@ -598,9 +636,13 @@ def visualize_chessboard(individual):
 def visualize_chromosome(*individuals):
     for i, indiv in enumerate(individuals):
         chromosome = indiv.get_chromosome()
+        if isinstance(chromosome, np.ndarray):
+            chromosome_str = " ".join(map(str, chromosome.tolist()))
+        else:
+            chromosome_str = str(chromosome)
         fitness = indiv.get_fitness() if indiv.is_fitness_calculated() else "Not calculated"
         print(
-            f'Individual {i + 1} (ID={indiv.get_id()}): \t {chromosome} \t Fitness: {fitness}')
+            f'Individual {i + 1} (ID={indiv.get_id()}): \t {chromosome_str} \t Fitness: {fitness}')
 
 
 def plot_convergence(fitness_history):
@@ -623,7 +665,6 @@ def run_experiment(num_runs=3, **ga_params):
 
         queens_ga = QueensGA(**ga_params)
         queens_ga.initialize_population()
-
         best_individual, best_fitness, generations, fitness_history, avg_fitness_history = queens_ga.run_ga()
 
         results.append({
@@ -639,49 +680,13 @@ def run_experiment(num_runs=3, **ga_params):
 
         print(f"Result: {'SUCCESS' if best_fitness == 0 else 'FAILED'}")
         if best_fitness == 0:
-            print(f"Solution: {list(best_individual.get_chromosome())}")
-            visualize_chessboard(best_individual)
+            print(f"Solution: {best_individual.get_chromosome()}")
+        visualize_chessboard(best_individual)
 
     return results
 
-# Utility table print function
-
-
-def print_summary_table(results):
-    print("\n" + "="*90)
-    print("EXPERIMENT SUMMARY TABLE")
-    print("="*90)
-
-    # Header
-    print(f"{'Run':<6} {'Success':<10} {'Generations':<15} {'Evaluations':<15} {'Best Fitness':<15} {'Solution':<20}")
-    print("-"*90)
-
-    # Data rows
-    for r in results:
-        success_str = "YES" if r['success'] else "NO"
-        solution_str = r['best_individual'].get_chromosome(
-        ) if r['success'] else "N/A"
-
-        print(f"{r['run']:<6} {success_str:<10} {r['generations']:<15,} {r['evaluations']:<15,} {r['best_fitness']:<15,} {list(solution_str)}")
-
-    print("-"*90)
-
-    # Statistics
-    successes = sum(1 for r in results if r['success'])
-    success_rate = (successes / len(results)) * 100
-    avg_generations = sum(r['generations'] for r in results) / len(results)
-    avg_evaluations = sum(r['evaluations'] for r in results) / len(results)
-
-    print(f"\n{'STATISTICS':<20}")
-    print(f"{'Success Rate:':<20} {successes:,}/{len(results):,} ({success_rate:.1f}%)")
-    print(f"{'Avg Generations:':<20} {avg_generations:,.2f}")
-    print(f"{'Avg Evaluations:':<20} {avg_evaluations:,.2f}")
-
-    print("="*90)
-
 
 # ############################### Main Execution ###############################
-
 if __name__ == "__main__":
     print("="*90)
     print("                              N-Queens Genetic Algorithm")
@@ -691,10 +696,11 @@ if __name__ == "__main__":
     print("\n" + "="*60)
     print("Baseline implementation")
     print("="*60)
+    print
 
     results = run_experiment(
-        num_runs=10_000,
-        n=8,
+        num_runs=100,
+        n=20,
         pop_size=100,
         mutation_prob=0.5,
         recombination_rate=1.0,
