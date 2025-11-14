@@ -66,6 +66,8 @@ def run_all_experiments():
     results_dir = ensure_results_directory()
     original_dir = os.getcwd()
 
+    # print(original_dir)
+
     # Change to Results directory for saving plots
     os.chdir(results_dir)
 
@@ -129,8 +131,7 @@ def run_all_experiments():
 
         # 2.3: Mutation Type Comparison
         print("\n>>> Testing Mutation Type Comparison...")
-        # mutation_types = ['swap', 'bitwise']
-        mutation_types = ['swap']
+        mutation_types = ['swap', 'bitwise']
 
         mutation_type_results = {}
 
@@ -142,7 +143,7 @@ def run_all_experiments():
                 pop_size=100,
                 mutation_prob=0.5,
                 recombination_rate=1.0,
-                max_evaluations=10000,
+                max_evaluations=1000,
                 crossover_type='cut_and_fill',
                 mutation_type=mut_type,
                 survival_strategy='fitness_based'
@@ -186,7 +187,9 @@ def run_all_experiments():
         print("TASK 4: SURVIVAL STRATEGY COMPARISON")
         print("="*90)
 
-        survival_strategies = ['fitness_based', 'generational', 'elitism']
+        # survival_strategies = ['fitness_based', 'generational', 'elitism']
+        survival_strategies = ['fitness_based']
+
         survival_results = {}
 
         for strategy in survival_strategies:
