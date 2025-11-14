@@ -86,7 +86,7 @@ def crossover_n_cut(parent1, parent2, n_cuts=2):
     parent1_chromosome = np.asarray(parent1.get_chromosome())
     parent2_chromosome = np.asarray(parent2.get_chromosome())
     length = len(parent1_chromosome)
-    cut_points = np.sort(np.random.choice(
+    cut_points = sorted(np.random.choice(
         range(1, length), size=n_cuts, replace=False))
     boundaries = [0] + cut_points + [length]
 
