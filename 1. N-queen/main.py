@@ -1,6 +1,12 @@
 # main.py
 from queens_ga import QueensGA
-from all_experminets_Runner import run_all_experiments
+from all_experiments_Runner import (
+    run_task_2_only,
+    run_task_3_only,
+    run_task_4_only,
+    run_task_5_only,
+    run_all_experiments
+)
 
 
 if __name__ == "__main__":
@@ -16,8 +22,15 @@ if __name__ == "__main__":
     #     recombination_rate=1.0,
     #     max_evaluations=10000
     # )
-    run_all_experiments()
 
     # Print summary and plot
     # print_summary_table(results)
     # plot_single_experiment(results, "Baseline 8-Queens")
+
+    run_all_experiments()
+
+    # Run only specific tasks:
+    run_task_2_only()  # Just parameter sensitivity
+    # run_task_3_only()  # Just crossover comparison
+    # run_task_4_only()  # Just survival strategies
+    # run_task_5_only()  # Just scalability
