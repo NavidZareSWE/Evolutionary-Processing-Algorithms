@@ -1,6 +1,6 @@
 # main.py
 from queens_ga import QueensGA
-from all_experiments_Runner import (
+from all_experminets_Runner import (
     run_task_2_only,
     run_task_3_only,
     run_task_4_only,
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     run_all_experiments()
 
     # Run only specific tasks:
-    run_task_2_only()  # Just parameter sensitivity
+    # run_task_2_only()  # Just parameter sensitivity
     # run_task_3_only()  # Just crossover comparison
     # run_task_4_only()  # Just survival strategies
     # run_task_5_only()  # Just scalability

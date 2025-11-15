@@ -139,7 +139,9 @@ def run_all_experiments():
         # Compare two mutation modes
         # -----------------------------------------------------------------
         print("\n>>> TASK 2.3: Mutation Type Comparison...")
-        mutation_types = ['swap', 'bitwise']
+        # mutation_types = ['swap', 'bitwise']
+        mutation_types = ['swap']
+
         mutation_type_results = {}
 
         for mut_type in mutation_types:
@@ -210,7 +212,9 @@ def run_all_experiments():
         # -----------------------------------------------------------------
         # TASK 4: Compare Fitness-based, Generational, and Elitism
         # -----------------------------------------------------------------
-        survival_strategies = ['fitness_based', 'generational', 'elitism']
+        # survival_strategies = ['fitness_based', 'generational', 'elitism']
+        survival_strategies = ['fitness_based']
+
         survival_results = {}
 
         for strategy in survival_strategies:
@@ -354,7 +358,9 @@ def run_task_2_only():
         create_comparison_table(recombination_results, "Recombination Rate")
 
         # Task 2.3
-        mutation_types = ['swap', 'bitwise']
+        # mutation_types = ['swap', 'bitwise']
+        mutation_types = ['swap']
+
         mutation_type_results = {}
         for mut_type in mutation_types:
             print(f"\n--- Mutation Type: {mut_type} ---")
