@@ -288,11 +288,12 @@ class QueensGA:
                     new_pop[child2.get_id()] = child2
 
             case "generational":
-                new_pop = generational_replacement(self._pop)
+                new_pop = generational_replacement(self, offsprings)
 
             case "elitism":
                 # Elitism: keep n_elite best
-                new_pop = elitism_replacement(offsprings, n_elite)
+                new_pop = elitism_replacement(
+                    self, offsprings, population_fitness, n_elite)
 
             case _:
                 raise ValueError(

@@ -27,7 +27,7 @@ if __name__ == "__main__":
     # print_summary_table(results)
     # plot_single_experiment(results, "Baseline 8-Queens")
 
-    run_all_experiments()
+    # run_all_experiments()
 
     # Run only specific tasks:
     # run_task_2_only()  # Just parameter sensitivity

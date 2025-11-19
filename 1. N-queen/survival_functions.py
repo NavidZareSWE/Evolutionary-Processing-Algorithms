@@ -30,32 +30,72 @@ def fitness_based_replacement(population_fitness, child1_fitness, child2_fitness
     return replaced_id1, replaced_id2
 
 
-def generational_replacement(population, offspring, fitnesses, offspring_fitnesses):
-    """
-    Generational replacement: entire population is replaced by offspring.
+def generational_replacement(ga_instance, first_two_child):
+    all_child = list(
+        first_two_child)
 
-    Args:
-        population: current population
-        offspring: new offspring
-        fitnesses: fitness of current population
-        offspring_fitnesses: fitness of offspring
-    Returns:
-        new population, new fitnesses
-    """
-    pass
+    for _ in range(49):
+        parent1, parent2 = ga_instance.select_parents()
+        child1, child2 = ga_instance.recombine(
+            parent1, parent2, combinatorName=ga_instance._crossover_type
+        )
+
+        child1 = ga_instance.mutate(
+            child1, mutatorName=ga_instance._mutation_type)
+        child2 = ga_instance.mutate(
+            child2, mutatorName=ga_instance._mutation_type)
+
+        all_child.append(child1)
+        all_child.append(child2)
+
+    new_population = {}
+    for child in all_child:
+        new_population[child.get_id()] = child
+
+    return new_population
 
 
-def elitism_replacement(population, offspring, fitnesses, offspring_fitnesses, n_elite=2):
-    """
-    Elitism: keep n_elite best individuals, rest are replaced.
+def elitism_replacement(ga_instance, first_two_child, population_fitness, n_elite=2):
+    current_population = ga_instance.get_pop()
+    pop_size = ga_instance.get_pop_size()
 
-    Args:
-        population: current population
-        offspring: new offspring
-        fitnesses: fitness of current population
-        offspring_fitnesses: fitness of offspring
-        n_elite: number of elite individuals to preserve
-    Returns:
-        new population, new fitnesses
-    """
-    pass
+    population_fitness.sort(key=lambda x: x[1], reverse=True)
+
+    elite_ids = []
+    for i in range(n_elite):
+        id = population_fitness[i][0]
+        elite_ids.append(id)
+
+    new_population = {}
+    for elite_id in elite_ids:
+        new_population[elite_id] = current_population[elite_id]
+
+    all_child = list(first_two_child)
+
+    # Calculate how many more we need
+    # Total needed: pop_size - n_elite
+    # Need to create: (pop_size - n_elite - 2(already created children)) / 2 pairs
+    num_child_needed = pop_size - n_elite
+    # // = to get integet instead of accidental float
+    pairs_to_create = (num_child_needed - 2) // 2
+
+    for _ in range(pairs_to_create):
+        parent1, parent2 = ga_instance.select_parents()
+
+        child1, child2 = ga_instance.recombine(
+            parent1, parent2, combinatorName=ga_instance._crossover_type
+        )
+
+        child1 = ga_instance.mutate(
+            child1, mutatorName=ga_instance._mutation_type)
+        child2 = ga_instance.mutate(
+            child2, mutatorName=ga_instance._mutation_type)
+
+        all_child.append(child1)
+        all_child.append(child2)
+
+    for i in range(num_child_needed):
+        child = all_child[i]
+        new_population[child.get_id()] = child
+
+    return new_population

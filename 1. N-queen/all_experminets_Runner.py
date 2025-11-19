@@ -212,8 +212,7 @@ def run_all_experiments():
         # -----------------------------------------------------------------
         # TASK 4: Compare Fitness-based, Generational, and Elitism
         # -----------------------------------------------------------------
-        # survival_strategies = ['fitness_based', 'generational', 'elitism']
-        survival_strategies = ['fitness_based']
+        survival_strategies = ['fitness_based', 'generational', 'elitism']
 
         survival_results = {}
 

@@ -478,14 +478,18 @@ def create_comparison_table(results_dict, category_name):
         successful_runs = [r for r in runs if r['success']]
 
         if successful_runs:
-            avg_generations = np.mean([r['generations']
-                                      for r in successful_runs])
-            std_generations = np.std([r['generations']
-                                     for r in successful_runs])
-            avg_evaluations = np.mean([r['evaluations']
-                                      for r in successful_runs])
-            std_evaluations = np.std([r['evaluations']
-                                     for r in successful_runs])
+            generations_list = [r['generations'] for r in successful_runs]
+            evaluations_list = [r['evaluations'] for r in successful_runs]
+
+            avg_generations = np.mean(generations_list)
+            std_generations = np.std(generations_list)
+            avg_evaluations = np.mean(evaluations_list)
+            std_evaluations = np.std(evaluations_list)
+
+            # Debug: print min/max to understand the spread
+            min_gen = min(generations_list)
+            max_gen = max(generations_list)
+            print(f"  [{category_value}] Generations range: {min_gen} to {max_gen} (mean={avg_generations:.1f}, std={std_generations:.1f})")
         else:
             avg_generations = np.nan
             std_generations = np.nan
@@ -501,19 +505,39 @@ def create_comparison_table(results_dict, category_name):
             'Total Runs': len(runs),
             'Successes': successes,
             'Success Rate (%)': f'{success_rate:.1f}',
-            'Avg Generations': f'{avg_generations:.1f} ± {std_generations:.1f}' if not np.isnan(avg_generations) else 'N/A',
-            'Avg Evaluations': f'{avg_evaluations:.0f} ± {std_evaluations:.0f}' if not np.isnan(avg_evaluations) else 'N/A',
+            'Avg Generations': f'{avg_generations:.1f} [+-] {std_generations:.1f}' if not np.isnan(avg_generations) else 'N/A',
+            'Avg Evaluations': f'{avg_evaluations:.0f} [+-] {std_evaluations:.0f}' if not np.isnan(avg_evaluations) else 'N/A',
             'Avg Final Fitness': f'{avg_fitness:.2f}',
             'Best Fitness': f'{best_fitness:.0f}'
         })
 
     df = pd.DataFrame(data)
 
-    print(f"\n{'='*100}")
-    print(f"{category_name} Comparison Table".center(100))
-    print(f"{'='*100}")
+    # Print with better formatting
+    print(f"\n{'='*120}")
+    print(f"{category_name} Comparison Table".center(120))
+    print(f"{'='*120}")
+
+    # Custom column widths for better readability
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', 120)
+    pd.set_option('display.max_colwidth', 25)
+
     print(df.to_string(index=False))
-    print(f"{'='*100}\n")
+    print(f"{'='*120}\n")
+
+    # Print a summary section with better formatting
+    print(f"\n{' SUMMARY '.center(120, '-')}")
+    for idx, row in df.iterrows():
+        print(f"\n{category_name}: {row[category_name]}")
+        print(f"  {'Total Runs:':<25} {row['Total Runs']}")
+        print(
+            f"  {'Successes:':<25} {row['Successes']} ({row['Success Rate (%)']}%)")
+        print(f"  {'Avg Generations:':<25} {row['Avg Generations']}")
+        print(f"  {'Avg Evaluations:':<25} {row['Avg Evaluations']}")
+        print(f"  {'Avg Final Fitness:':<25} {row['Avg Final Fitness']}")
+        print(f"  {'Best Fitness:':<25} {row['Best Fitness']}")
+    print(f"{'-'*120}\n")
 
     # Save to CSV
     csv_filename = f'{category_name.replace(" ", "_").lower()}_comparison.csv'
