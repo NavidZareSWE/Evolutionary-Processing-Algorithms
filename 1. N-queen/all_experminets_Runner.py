@@ -7,7 +7,8 @@ from plotting_functions import (
     plot_survival_strategies,
     plot_scalability_study,
     create_comparison_table,
-    plot_single_experiment
+    plot_single_experiment,
+    show_all_plots_and_wait
 )
 
 # My Single Runner
@@ -305,6 +306,7 @@ def run_all_experiments():
         print("ALL EXPERIMENTS COMPLETED!")
         print(f"Results and plots saved in: {os.path.abspath(results_dir)}")
         print("="*90)
+        show_all_plots_and_wait()
 
     finally:
         # Return to original directory

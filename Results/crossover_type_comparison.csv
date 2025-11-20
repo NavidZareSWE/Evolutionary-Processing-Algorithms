@@ -1,0 +1,5 @@
+Crossover Type,Total Runs,Successes,Success Rate (%),Avg Generations,Avg Evaluations,Avg Final Fitness,Best Fitness
+cut_and_fill,30,30,100.0,63.7 [+-] 96.3,227 [+-] 193,0.00,0
+pmx,30,30,100.0,191.3 [+-] 329.2,483 [+-] 658,0.00,0
+2_cut,30,30,100.0,78.1 [+-] 76.8,256 [+-] 154,0.00,0
+3_cut,30,30,100.0,89.2 [+-] 96.0,278 [+-] 192,0.00,0

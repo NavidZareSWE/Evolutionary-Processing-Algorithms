@@ -1,0 +1,4 @@
+Mutation Probability,Total Runs,Successes,Success Rate (%),Avg Generations,Avg Evaluations,Avg Final Fitness,Best Fitness
+0.2,30,30,100.0,231.1 [+-] 668.1,562 [+-] 1336,0.00,0
+0.5,30,30,100.0,88.6 [+-] 95.7,277 [+-] 191,0.00,0
+1.0,30,30,100.0,59.2 [+-] 64.6,218 [+-] 129,0.00,0

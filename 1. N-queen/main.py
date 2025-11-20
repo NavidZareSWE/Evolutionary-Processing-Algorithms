@@ -1,13 +1,15 @@
 # main.py
 from queens_ga import QueensGA
+from plotting_functions import plot_single_experiment
 from all_experminets_Runner import (
+    run_experiment,
+    print_summary_table,
     run_task_2_only,
     run_task_3_only,
     run_task_4_only,
     run_task_5_only,
     run_all_experiments
 )
-
 
 if __name__ == "__main__":
     print("="*90)
@@ -33,4 +35,4 @@ if __name__ == "__main__":
     # run_task_2_only()  # Just parameter sensitivity
     # run_task_3_only()  # Just crossover comparison
     # run_task_4_only()  # Just survival strategies
-    # run_task_5_only()  # Just scalability
+    run_task_5_only()  # Just scalability

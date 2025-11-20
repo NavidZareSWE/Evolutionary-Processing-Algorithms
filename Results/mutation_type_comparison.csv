@@ -1,0 +1,2 @@
+Mutation Type,Total Runs,Successes,Success Rate (%),Avg Generations,Avg Evaluations,Avg Final Fitness,Best Fitness
+swap,30,30,100.0,86.8 [+-] 90.4,274 [+-] 181,0.00,0

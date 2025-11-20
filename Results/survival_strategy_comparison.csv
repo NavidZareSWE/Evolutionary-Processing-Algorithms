@@ -1,0 +1,4 @@
+Survival Strategy,Total Runs,Successes,Success Rate (%),Avg Generations,Avg Evaluations,Avg Final Fitness,Best Fitness
+fitness_based,30,30,100.0,93.9 [+-] 135.5,288 [+-] 271,0.00,0
+generational,30,30,100.0,3.0 [+-] 1.9,397 [+-] 192,0.00,0
+elitism,30,30,100.0,2.3 [+-] 2.0,322 [+-] 193,0.00,0

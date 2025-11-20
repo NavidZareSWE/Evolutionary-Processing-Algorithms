@@ -4,17 +4,34 @@ import pandas as pd
 from matplotlib.gridspec import GridSpec
 
 # Close all plots to save files instead of showing them
-plt.ioff()  # Turn off interactive mode
+plt.ion()  # Turn on interactive mode
 
 
 def _save_and_close(filename):
     """Helper function to save and close plots"""
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     print(f"[OK] Saved: {filename}")
-    plt.close()
+    plt.show(block=True)  # Display the plot
+    plt.pause(0.1)
 
+
+def show_all_plots_and_wait():
+    """
+    Display all generated plots and wait for user to close them.
+    Call this at the end of your experiment suite.
+    """
+    print("\n" + "="*80)
+    print("📊 ALL PLOTS ARE NOW DISPLAYED")
+    print("="*80)
+    print("💡 TIP: Review all plot windows.")
+    print("⚠️  Close all plot windows to exit the program.")
+    print("="*80 + "\n")
+
+    plt.show(block=True)  # Block until all plot windows are closed
+    print("✅ All plots closed. Exiting...")
 
 # ========================= TASK 2: PARAMETER SENSITIVITY =========================
+
 
 def plot_parameter_sensitivity(results_dict, param_name, param_values):
     """
