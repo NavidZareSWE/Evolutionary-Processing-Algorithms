@@ -33,6 +33,6 @@ if __name__ == "__main__":
 
     # Run only specific tasks:
     # run_task_2_only()  # Just parameter sensitivity
-    # run_task_3_only()  # Just crossover comparison
+    run_task_3_only()  # Just crossover comparison
     # run_task_4_only()  # Just survival strategies
-    run_task_5_only()  # Just scalability
+    # run_task_5_only()  # Just scalability

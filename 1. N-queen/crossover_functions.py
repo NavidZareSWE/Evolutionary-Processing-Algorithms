@@ -70,7 +70,7 @@ def crossover_pmx(parent1, parent2):
     point1, point2 = np.random.choice(
         range(length), size=2, replace=False)
 
-    if point2 > point1:
+    if point1 > point2:  # Swap if point1 is larger
         point1, point2 = point2, point1
 
     child1 = _create_offspring_pmx(
