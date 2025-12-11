@@ -1,0 +1,34 @@
+{
+  "name": "evolutionary-computing-course",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "remove-dotGit": "rm -rf .git",
+    "init-struct": "bash createDirs.sh",
+    "pretty": "npx prettier . --write",
+    "check-update": "npx npm-check-updates",
+    "update-patch": "npx npm-check-updates --upgrade --target patch",
+    "update-minor": "npx npm-check-updates --upgrade --target minor",
+    "update": "npx npm-check-updates --upgrade"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "lucide-react": "^0.263.1",
+    "mathjax": "^3.2.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.0.0",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.2",
+    "typescript": "^5.0.0",
+    "vite": "^4.3.9"
+  }
+}
