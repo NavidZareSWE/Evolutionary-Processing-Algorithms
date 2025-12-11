@@ -1,14 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   ChevronLeft,
   ChevronRight,
   AlertCircle,
   Lightbulb,
   BookOpen,
-  Sparkles,
-  CheckCircle2,
   FileText,
   Calculator,
+  X,
+  Maximize2,
 } from "lucide-react";
 import { useNavigation } from "../contexts/NavigationContext";
 import { getSlideByNumber } from "../constants/slides";
@@ -28,13 +28,28 @@ export default function SlideViewer() {
   } = useNavigation();
 
   const contentRef = useRef<HTMLDivElement>(null);
+  const [isImageExpanded, setIsImageExpanded] = useState(false);
 
   const slide = getSlideByNumber(currentSlide);
+
+  // Generate slide image path (slide-001.jpg, slide-002.jpg, etc.)
+  const slideImagePath = `/slides/slide-${String(currentSlide).padStart(3, "0")}.jpg`;
 
   // Scroll to top when slide changes
   useEffect(() => {
     contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentSlide]);
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isImageExpanded) {
+        setIsImageExpanded(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isImageExpanded]);
 
   if (!slide) {
     return (
@@ -66,6 +81,63 @@ export default function SlideViewer() {
 
   return (
     <div className="slide-viewer">
+      {/* Fullscreen Image Modal */}
+      {isImageExpanded && (
+        <div
+          className="slide-modal-overlay"
+          onClick={() => setIsImageExpanded(false)}
+        >
+          <div
+            className="slide-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="modal-close-btn"
+              onClick={() => setIsImageExpanded(false)}
+            >
+              <X size={24} />
+            </button>
+            <div className="modal-slide-info">
+              <span>Slide {slide.number}</span>
+              <span>•</span>
+              <span>{slide.title}</span>
+            </div>
+            <img
+              src={slideImagePath}
+              alt={`Slide ${slide.number}: ${slide.title}`}
+              className="modal-slide-image"
+            />
+            <div className="modal-navigation">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToPrevSlide();
+                }}
+                disabled={isFirstSlide}
+                className="modal-nav-btn"
+              >
+                <ChevronLeft size={20} />
+                Previous
+              </button>
+              <span className="modal-slide-counter">
+                {currentSlide} / {totalSlides}
+              </span>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  goToNextSlide();
+                }}
+                disabled={isLastSlide}
+                className="modal-nav-btn"
+              >
+                Next
+                <ChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="slide-header animate-fade-in">
         <div className="slide-info">
           <span className="slide-number gold-text">Slide {slide.number}</span>
@@ -76,7 +148,27 @@ export default function SlideViewer() {
       </div>
 
       <div className="slide-content" ref={contentRef}>
-        <div className="slide-original animate-slide-up delay-1">
+        {/* Actual Slide Image Thumbnail */}
+        <div className="slide-image-section animate-slide-up delay-1">
+          <div
+            className="slide-image-thumbnail"
+            onClick={() => setIsImageExpanded(true)}
+            title="Click to view full size"
+          >
+            <img
+              src={slideImagePath}
+              alt={`Slide ${slide.number}: ${slide.title}`}
+              className="thumbnail-img"
+            />
+            <div className="thumbnail-overlay">
+              <Maximize2 size={20} />
+              <span>Click to expand</span>
+            </div>
+            <div className="thumbnail-badge-corner">Slide {slide.number}</div>
+          </div>
+        </div>
+
+        <div className="slide-original animate-slide-up delay-2">
           <h3 className="section-title">
             <FileText size={18} className="text-primary-400" />
             Original Content
@@ -90,7 +182,7 @@ export default function SlideViewer() {
           </div>
         </div>
 
-        <div className="slide-explanation animate-slide-up delay-2">
+        <div className="slide-explanation animate-slide-up delay-3">
           <h3 className="section-title">
             <BookOpen size={18} className="text-primary-400" />
             Detailed Explanation
@@ -102,31 +194,24 @@ export default function SlideViewer() {
           </div>
         </div>
 
-        <div className="slide-key-points animate-slide-up delay-3">
+        {/* Compact Key Points Grid */}
+        <div className="slide-key-points-compact animate-slide-up delay-4">
           <h3 className="section-title">
-            <Sparkles size={18} className="text-gold" />
+            <span className="key-icon">💡</span>
             Key Points
-            <span className="key-points-count">
-              {slide.keyPoints.length} points
-            </span>
           </h3>
-          <ul className="key-points-list enhanced">
+          <div className="key-points-grid">
             {slide.keyPoints.map((point, i) => (
-              <li
-                key={i}
-                className="key-point-item"
-                style={{ animationDelay: `${0.4 + i * 0.08}s` }}
-              >
-                <span className="key-point-number">{i + 1}</span>
-                <span className="key-point-text">{point}</span>
-                <CheckCircle2 size={16} className="key-point-check" />
-              </li>
+              <div key={i} className="key-point-card">
+                <span className="kp-number">{i + 1}</span>
+                <p className="kp-text">{point}</p>
+              </div>
             ))}
-          </ul>
+          </div>
         </div>
 
         {slide.professorNote && (
-          <div className="professor-note animate-slide-up delay-4">
+          <div className="professor-note animate-slide-up delay-5">
             <div className="note-header">
               <Lightbulb size={20} className="text-gold" />
               <span>Professor's Note</span>
@@ -147,11 +232,7 @@ export default function SlideViewer() {
               {relatedDefinitions.map(
                 (def, i) =>
                   def && (
-                    <div
-                      key={i}
-                      className="definition-card"
-                      style={{ animationDelay: `${0.6 + i * 0.1}s` }}
-                    >
+                    <div key={i} className="definition-card">
                       <h4 className="term">{def.term}</h4>
                       <p className="definition">{def.definition}</p>
                       {def.professorEmphasis && (
@@ -178,11 +259,7 @@ export default function SlideViewer() {
               {relatedFormulas.map(
                 (formula, i) =>
                   formula && (
-                    <div
-                      key={i}
-                      className="formula-card"
-                      style={{ animationDelay: `${0.7 + i * 0.1}s` }}
-                    >
+                    <div key={i} className="formula-card">
                       <h4 className="formula-name">{formula.name}</h4>
                       <div className="formula-display">
                         <MathBlock latex={formula.latexDisplay} display />
@@ -220,10 +297,6 @@ export default function SlideViewer() {
             <div
               className="progress-fill gold-gradient"
               style={{ width: `${(currentSlide / totalSlides) * 100}%` }}
-            />
-            <div
-              className="progress-thumb"
-              style={{ left: `${(currentSlide / totalSlides) * 100}%` }}
             />
           </div>
         </div>
