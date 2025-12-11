@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   ChevronLeft,
   ChevronRight,
@@ -7,8 +7,6 @@ import {
   BookOpen,
   FileText,
   Calculator,
-  X,
-  Maximize2,
 } from "lucide-react";
 import { useNavigation } from "../contexts/NavigationContext";
 import { getSlideByNumber } from "../constants/slides";
@@ -28,28 +26,13 @@ export default function SlideViewer() {
   } = useNavigation();
 
   const contentRef = useRef<HTMLDivElement>(null);
-  const [isImageExpanded, setIsImageExpanded] = useState(false);
 
   const slide = getSlideByNumber(currentSlide);
-
-  // Generate slide image path (slide-001.jpg, slide-002.jpg, etc.)
-  const slideImagePath = `/slides/slide-${String(currentSlide).padStart(3, "0")}.jpg`;
 
   // Scroll to top when slide changes
   useEffect(() => {
     contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentSlide]);
-
-  // Handle escape key to close modal
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isImageExpanded) {
-        setIsImageExpanded(false);
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isImageExpanded]);
 
   if (!slide) {
     return (
@@ -81,63 +64,6 @@ export default function SlideViewer() {
 
   return (
     <div className="slide-viewer">
-      {/* Fullscreen Image Modal */}
-      {isImageExpanded && (
-        <div
-          className="slide-modal-overlay"
-          onClick={() => setIsImageExpanded(false)}
-        >
-          <div
-            className="slide-modal-content"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              className="modal-close-btn"
-              onClick={() => setIsImageExpanded(false)}
-            >
-              <X size={24} />
-            </button>
-            <div className="modal-slide-info">
-              <span>Slide {slide.number}</span>
-              <span>•</span>
-              <span>{slide.title}</span>
-            </div>
-            <img
-              src={slideImagePath}
-              alt={`Slide ${slide.number}: ${slide.title}`}
-              className="modal-slide-image"
-            />
-            <div className="modal-navigation">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goToPrevSlide();
-                }}
-                disabled={isFirstSlide}
-                className="modal-nav-btn"
-              >
-                <ChevronLeft size={20} />
-                Previous
-              </button>
-              <span className="modal-slide-counter">
-                {currentSlide} / {totalSlides}
-              </span>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goToNextSlide();
-                }}
-                disabled={isLastSlide}
-                className="modal-nav-btn"
-              >
-                Next
-                <ChevronRight size={20} />
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="slide-header animate-fade-in">
         <div className="slide-info">
           <span className="slide-number gold-text">Slide {slide.number}</span>
@@ -148,27 +74,7 @@ export default function SlideViewer() {
       </div>
 
       <div className="slide-content" ref={contentRef}>
-        {/* Actual Slide Image Thumbnail */}
-        <div className="slide-image-section animate-slide-up delay-1">
-          <div
-            className="slide-image-thumbnail"
-            onClick={() => setIsImageExpanded(true)}
-            title="Click to view full size"
-          >
-            <img
-              src={slideImagePath}
-              alt={`Slide ${slide.number}: ${slide.title}`}
-              className="thumbnail-img"
-            />
-            <div className="thumbnail-overlay">
-              <Maximize2 size={20} />
-              <span>Click to expand</span>
-            </div>
-            <div className="thumbnail-badge-corner">Slide {slide.number}</div>
-          </div>
-        </div>
-
-        <div className="slide-original animate-slide-up delay-2">
+        <div className="slide-original animate-slide-up delay-1">
           <h3 className="section-title">
             <FileText size={18} className="text-primary-400" />
             Original Content
@@ -182,7 +88,7 @@ export default function SlideViewer() {
           </div>
         </div>
 
-        <div className="slide-explanation animate-slide-up delay-3">
+        <div className="slide-explanation animate-slide-up delay-2">
           <h3 className="section-title">
             <BookOpen size={18} className="text-primary-400" />
             Detailed Explanation
@@ -195,7 +101,7 @@ export default function SlideViewer() {
         </div>
 
         {/* Compact Key Points Grid */}
-        <div className="slide-key-points-compact animate-slide-up delay-4">
+        <div className="slide-key-points-compact animate-slide-up delay-3">
           <h3 className="section-title">
             <span className="key-icon">💡</span>
             Key Points
@@ -211,7 +117,7 @@ export default function SlideViewer() {
         </div>
 
         {slide.professorNote && (
-          <div className="professor-note animate-slide-up delay-5">
+          <div className="professor-note animate-slide-up delay-4">
             <div className="note-header">
               <Lightbulb size={20} className="text-gold" />
               <span>Professor's Note</span>
@@ -222,7 +128,7 @@ export default function SlideViewer() {
         )}
 
         {relatedDefinitions.length > 0 && (
-          <div className="related-definitions animate-slide-up delay-5">
+          <div className="related-definitions animate-slide-up delay-4">
             <h3 className="section-title">
               <BookOpen size={18} className="text-accent-400" />
               Related Definitions
@@ -249,7 +155,7 @@ export default function SlideViewer() {
         )}
 
         {relatedFormulas.length > 0 && (
-          <div className="related-formulas animate-slide-up delay-6">
+          <div className="related-formulas animate-slide-up delay-5">
             <h3 className="section-title">
               <Calculator size={18} className="text-accent-400" />
               Related Formulas
