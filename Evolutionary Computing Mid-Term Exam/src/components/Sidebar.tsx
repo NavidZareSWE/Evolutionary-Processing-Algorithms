@@ -1,27 +1,39 @@
-import React from 'react';
-import { Book, ChevronLeft, ChevronRight, Home, Search, BookOpen, Calculator, Play } from 'lucide-react';
-import { useNavigation } from '../contexts/NavigationContext';
-import { SESSIONS } from '../constants/sessions';
+import React from "react";
+import {
+  Book,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  Search,
+  BookOpen,
+  Calculator,
+  Play,
+} from "lucide-react";
+import { useNavigation } from "../contexts/NavigationContext";
+import { SESSIONS } from "../constants/sessions";
 
 interface SidebarProps {
-  activeView: 'sessions' | 'definitions' | 'formulas' | 'search' | 'visualizations';
-  onViewChange: (view: 'sessions' | 'definitions' | 'formulas' | 'search' | 'visualizations') => void;
+  activeView:
+    | "sessions"
+    | "definitions"
+    | "formulas"
+    | "search"
+    | "visualizations";
+  onViewChange: (
+    view: "sessions" | "definitions" | "formulas" | "search" | "visualizations",
+  ) => void;
 }
 
 export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
-  const { 
-    currentSession, 
-    sidebarOpen, 
-    toggleSidebar, 
-    goToSession 
-  } = useNavigation();
+  const { currentSession, sidebarOpen, toggleSidebar, goToSession } =
+    useNavigation();
 
   return (
-    <aside className={`sidebar ${sidebarOpen ? 'open' : 'closed'}`}>
-      <button 
+    <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
+      <button
         className="sidebar-toggle"
         onClick={toggleSidebar}
-        aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+        aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
       >
         {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
       </button>
@@ -35,36 +47,36 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
 
           <nav className="sidebar-nav">
             <button
-              className={`nav-link ${activeView === 'sessions' ? 'active' : ''}`}
-              onClick={() => onViewChange('sessions')}
+              className={`nav-link ${activeView === "sessions" ? "active" : ""}`}
+              onClick={() => onViewChange("sessions")}
             >
               <Home size={18} />
               <span>Sessions</span>
             </button>
             <button
-              className={`nav-link ${activeView === 'definitions' ? 'active' : ''}`}
-              onClick={() => onViewChange('definitions')}
+              className={`nav-link ${activeView === "definitions" ? "active" : ""}`}
+              onClick={() => onViewChange("definitions")}
             >
               <BookOpen size={18} />
               <span>Definitions</span>
             </button>
             <button
-              className={`nav-link ${activeView === 'formulas' ? 'active' : ''}`}
-              onClick={() => onViewChange('formulas')}
+              className={`nav-link ${activeView === "formulas" ? "active" : ""}`}
+              onClick={() => onViewChange("formulas")}
             >
               <Calculator size={18} />
               <span>Formulas</span>
             </button>
             <button
-              className={`nav-link ${activeView === 'search' ? 'active' : ''}`}
-              onClick={() => onViewChange('search')}
+              className={`nav-link ${activeView === "search" ? "active" : ""}`}
+              onClick={() => onViewChange("search")}
             >
               <Search size={18} />
               <span>Search</span>
             </button>
             <button
-              className={`nav-link ${activeView === 'visualizations' ? 'active' : ''}`}
-              onClick={() => onViewChange('visualizations')}
+              className={`nav-link ${activeView === "visualizations" ? "active" : ""}`}
+              onClick={() => onViewChange("visualizations")}
             >
               <Play size={18} />
               <span>Visualizations</span>
@@ -77,7 +89,7 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
               {SESSIONS.map((session) => (
                 <li key={session.id}>
                   <button
-                    className={`session-item ${currentSession === session.id ? 'active' : ''}`}
+                    className={`session-item ${currentSession === session.id ? "active" : ""}`}
                     onClick={() => goToSession(session.id)}
                   >
                     <span className="session-number">{session.id}</span>

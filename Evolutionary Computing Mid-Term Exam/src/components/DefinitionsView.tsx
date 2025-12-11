@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
-import { Search, BookOpen, Link, AlertTriangle, Lightbulb } from 'lucide-react';
-import { DEFINITIONS, searchDefinitions, getRelatedDefinitions } from '../constants/definitions';
-import type { Definition } from '../types';
+import React, { useState } from "react";
+import { Search, BookOpen, Link, AlertTriangle, Lightbulb } from "lucide-react";
+import {
+  DEFINITIONS,
+  searchDefinitions,
+  getRelatedDefinitions,
+} from "../constants/definitions";
+import type { Definition } from "../types";
 
 export default function DefinitionsView() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedDefinition, setSelectedDefinition] = useState<Definition | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDefinition, setSelectedDefinition] =
+    useState<Definition | null>(null);
 
-  const filteredDefinitions = searchQuery 
+  const filteredDefinitions = searchQuery
     ? searchDefinitions(searchQuery)
     : Object.values(DEFINITIONS);
 
-  const relatedDefs = selectedDefinition?.relatedTerms 
+  const relatedDefs = selectedDefinition?.relatedTerms
     ? getRelatedDefinitions(selectedDefinition.term)
     : [];
 
@@ -43,7 +48,7 @@ export default function DefinitionsView() {
           {filteredDefinitions.map((def) => (
             <button
               key={def.term}
-              className={`definition-item ${selectedDefinition?.term === def.term ? 'selected' : ''}`}
+              className={`definition-item ${selectedDefinition?.term === def.term ? "selected" : ""}`}
               onClick={() => setSelectedDefinition(def)}
             >
               <h3 className="def-term">{def.term}</h3>
@@ -51,7 +56,9 @@ export default function DefinitionsView() {
             </button>
           ))}
           {filteredDefinitions.length === 0 && (
-            <p className="no-results">No definitions found for "{searchQuery}"</p>
+            <p className="no-results">
+              No definitions found for "{searchQuery}"
+            </p>
           )}
         </div>
 
@@ -59,10 +66,12 @@ export default function DefinitionsView() {
           {selectedDefinition ? (
             <>
               <h2 className="detail-term">{selectedDefinition.term}</h2>
-              
+
               <div className="detail-section">
                 <h3>Definition</h3>
-                <p className="detail-definition">{selectedDefinition.definition}</p>
+                <p className="detail-definition">
+                  {selectedDefinition.definition}
+                </p>
               </div>
 
               {selectedDefinition.professorEmphasis && (
@@ -75,30 +84,32 @@ export default function DefinitionsView() {
                 </div>
               )}
 
-              {selectedDefinition.examples && selectedDefinition.examples.length > 0 && (
-                <div className="detail-section">
-                  <h3>Examples</h3>
-                  <ul className="examples-list">
-                    {selectedDefinition.examples.map((ex, i) => (
-                      <li key={i}>{ex}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {selectedDefinition.commonMisconceptions && selectedDefinition.commonMisconceptions.length > 0 && (
-                <div className="detail-section misconceptions">
-                  <div className="misconception-header">
-                    <AlertTriangle size={18} className="text-orange-400" />
-                    <h3>Common Misconceptions</h3>
+              {selectedDefinition.examples &&
+                selectedDefinition.examples.length > 0 && (
+                  <div className="detail-section">
+                    <h3>Examples</h3>
+                    <ul className="examples-list">
+                      {selectedDefinition.examples.map((ex, i) => (
+                        <li key={i}>{ex}</li>
+                      ))}
+                    </ul>
                   </div>
-                  <ul className="misconceptions-list">
-                    {selectedDefinition.commonMisconceptions.map((m, i) => (
-                      <li key={i}>{m}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
+                )}
+
+              {selectedDefinition.commonMisconceptions &&
+                selectedDefinition.commonMisconceptions.length > 0 && (
+                  <div className="detail-section misconceptions">
+                    <div className="misconception-header">
+                      <AlertTriangle size={18} className="text-orange-400" />
+                      <h3>Common Misconceptions</h3>
+                    </div>
+                    <ul className="misconceptions-list">
+                      {selectedDefinition.commonMisconceptions.map((m, i) => (
+                        <li key={i}>{m}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
               {relatedDefs.length > 0 && (
                 <div className="detail-section">

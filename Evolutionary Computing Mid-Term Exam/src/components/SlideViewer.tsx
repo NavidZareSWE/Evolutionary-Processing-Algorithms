@@ -1,10 +1,20 @@
-import React, { useEffect, useRef } from 'react';
-import { ChevronLeft, ChevronRight, AlertCircle, Lightbulb, BookOpen, Sparkles, CheckCircle2, FileText, Calculator } from 'lucide-react';
-import { useNavigation } from '../contexts/NavigationContext';
-import { getSlideByNumber } from '../constants/slides';
-import { getDefinition } from '../constants/definitions';
-import { getFormula } from '../constants/formulas';
-import MathBlock from './MathBlock';
+import React, { useEffect, useRef } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  AlertCircle,
+  Lightbulb,
+  BookOpen,
+  Sparkles,
+  CheckCircle2,
+  FileText,
+  Calculator,
+} from "lucide-react";
+import { useNavigation } from "../contexts/NavigationContext";
+import { getSlideByNumber } from "../constants/slides";
+import { getDefinition } from "../constants/definitions";
+import { getFormula } from "../constants/formulas";
+import MathBlock from "./MathBlock";
 
 export default function SlideViewer() {
   const {
@@ -23,7 +33,7 @@ export default function SlideViewer() {
 
   // Scroll to top when slide changes
   useEffect(() => {
-    contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+    contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentSlide]);
 
   if (!slide) {
@@ -38,14 +48,19 @@ export default function SlideViewer() {
     );
   }
 
-  const relatedDefinitions = slide.definitions?.map(term => getDefinition(term)).filter(Boolean) || [];
-  const relatedFormulas = slide.formulas?.map(id => getFormula(id)).filter(Boolean) || [];
+  const relatedDefinitions =
+    slide.definitions?.map((term) => getDefinition(term)).filter(Boolean) || [];
+  const relatedFormulas =
+    slide.formulas?.map((id) => getFormula(id)).filter(Boolean) || [];
 
   // Handle progress bar click for direct navigation
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const percentage = (e.clientX - rect.left) / rect.width;
-    const targetSlide = Math.max(1, Math.min(totalSlides, Math.round(percentage * totalSlides)));
+    const targetSlide = Math.max(
+      1,
+      Math.min(totalSlides, Math.round(percentage * totalSlides)),
+    );
     goToSlide(targetSlide);
   };
 
@@ -67,8 +82,8 @@ export default function SlideViewer() {
             Original Content
           </h3>
           <div className="content-box">
-            {slide.content.split('\n').map((line, i) => (
-              <p key={i} className={line.startsWith('•') ? 'bullet-point' : ''}>
+            {slide.content.split("\n").map((line, i) => (
+              <p key={i} className={line.startsWith("•") ? "bullet-point" : ""}>
                 {line}
               </p>
             ))}
@@ -81,7 +96,7 @@ export default function SlideViewer() {
             Detailed Explanation
           </h3>
           <div className="explanation-text">
-            {slide.explanation.split('\n').map((para, i) => (
+            {slide.explanation.split("\n").map((para, i) => (
               <p key={i}>{para}</p>
             ))}
           </div>
@@ -91,12 +106,14 @@ export default function SlideViewer() {
           <h3 className="section-title">
             <Sparkles size={18} className="text-gold" />
             Key Points
-            <span className="key-points-count">{slide.keyPoints.length} points</span>
+            <span className="key-points-count">
+              {slide.keyPoints.length} points
+            </span>
           </h3>
           <ul className="key-points-list enhanced">
             {slide.keyPoints.map((point, i) => (
-              <li 
-                key={i} 
+              <li
+                key={i}
                 className="key-point-item"
                 style={{ animationDelay: `${0.4 + i * 0.08}s` }}
               >
@@ -127,22 +144,25 @@ export default function SlideViewer() {
               <span className="related-count">{relatedDefinitions.length}</span>
             </h3>
             <div className="definitions-grid">
-              {relatedDefinitions.map((def, i) => def && (
-                <div 
-                  key={i} 
-                  className="definition-card"
-                  style={{ animationDelay: `${0.6 + i * 0.1}s` }}
-                >
-                  <h4 className="term">{def.term}</h4>
-                  <p className="definition">{def.definition}</p>
-                  {def.professorEmphasis && (
-                    <p className="def-emphasis">
-                      <Lightbulb size={14} />
-                      {def.professorEmphasis}
-                    </p>
-                  )}
-                </div>
-              ))}
+              {relatedDefinitions.map(
+                (def, i) =>
+                  def && (
+                    <div
+                      key={i}
+                      className="definition-card"
+                      style={{ animationDelay: `${0.6 + i * 0.1}s` }}
+                    >
+                      <h4 className="term">{def.term}</h4>
+                      <p className="definition">{def.definition}</p>
+                      {def.professorEmphasis && (
+                        <p className="def-emphasis">
+                          <Lightbulb size={14} />
+                          {def.professorEmphasis}
+                        </p>
+                      )}
+                    </div>
+                  ),
+              )}
             </div>
           </div>
         )}
@@ -155,19 +175,24 @@ export default function SlideViewer() {
               <span className="related-count">{relatedFormulas.length}</span>
             </h3>
             <div className="formulas-grid">
-              {relatedFormulas.map((formula, i) => formula && (
-                <div 
-                  key={i} 
-                  className="formula-card"
-                  style={{ animationDelay: `${0.7 + i * 0.1}s` }}
-                >
-                  <h4 className="formula-name">{formula.name}</h4>
-                  <div className="formula-display">
-                    <MathBlock latex={formula.latexDisplay} display />
-                  </div>
-                  <p className="formula-description">{formula.plainEnglish}</p>
-                </div>
-              ))}
+              {relatedFormulas.map(
+                (formula, i) =>
+                  formula && (
+                    <div
+                      key={i}
+                      className="formula-card"
+                      style={{ animationDelay: `${0.7 + i * 0.1}s` }}
+                    >
+                      <h4 className="formula-name">{formula.name}</h4>
+                      <div className="formula-display">
+                        <MathBlock latex={formula.latexDisplay} display />
+                      </div>
+                      <p className="formula-description">
+                        {formula.plainEnglish}
+                      </p>
+                    </div>
+                  ),
+              )}
             </div>
           </div>
         )}
@@ -184,17 +209,19 @@ export default function SlideViewer() {
         </button>
 
         <div className="slide-progress">
-          <span className="progress-text">{currentSlide} / {totalSlides}</span>
-          <div 
-            className="progress-bar clickable" 
+          <span className="progress-text">
+            {currentSlide} / {totalSlides}
+          </span>
+          <div
+            className="progress-bar clickable"
             onClick={handleProgressClick}
             title="Click to jump to any slide"
           >
-            <div 
-              className="progress-fill gold-gradient" 
+            <div
+              className="progress-fill gold-gradient"
               style={{ width: `${(currentSlide / totalSlides) * 100}%` }}
             />
-            <div 
+            <div
               className="progress-thumb"
               style={{ left: `${(currentSlide / totalSlides) * 100}%` }}
             />

@@ -1,18 +1,22 @@
-import React, { useState } from 'react';
-import { Search, Calculator, Info, BookOpen, Link } from 'lucide-react';
-import { FORMULAS, searchFormulas, getRelatedFormulas } from '../constants/formulas';
-import MathBlock from './MathBlock';
-import type { Formula } from '../types';
+import React, { useState } from "react";
+import { Search, Calculator, Info, BookOpen, Link } from "lucide-react";
+import {
+  FORMULAS,
+  searchFormulas,
+  getRelatedFormulas,
+} from "../constants/formulas";
+import MathBlock from "./MathBlock";
+import type { Formula } from "../types";
 
 export default function FormulasView() {
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedFormula, setSelectedFormula] = useState<Formula | null>(null);
 
-  const filteredFormulas = searchQuery 
+  const filteredFormulas = searchQuery
     ? searchFormulas(searchQuery)
     : Object.values(FORMULAS);
 
-  const relatedFormulas = selectedFormula?.relatedFormulas 
+  const relatedFormulas = selectedFormula?.relatedFormulas
     ? getRelatedFormulas(selectedFormula.id)
     : [];
 
@@ -44,7 +48,7 @@ export default function FormulasView() {
           {filteredFormulas.map((formula) => (
             <button
               key={formula.id}
-              className={`formula-item ${selectedFormula?.id === formula.id ? 'selected' : ''}`}
+              className={`formula-item ${selectedFormula?.id === formula.id ? "selected" : ""}`}
               onClick={() => setSelectedFormula(formula)}
             >
               <h3 className="formula-title">{formula.name}</h3>
@@ -62,7 +66,7 @@ export default function FormulasView() {
           {selectedFormula ? (
             <>
               <h2 className="detail-title">{selectedFormula.name}</h2>
-              
+
               <div className="formula-display-large">
                 <MathBlock latex={selectedFormula.latexDisplay} display />
               </div>
@@ -78,27 +82,32 @@ export default function FormulasView() {
               <div className="detail-section">
                 <h3>Variables</h3>
                 <div className="variables-table">
-                  {Object.entries(selectedFormula.variables).map(([symbol, meaning]) => (
-                    <div key={symbol} className="variable-row">
-                      <span className="variable-symbol">
-                        <MathBlock latex={symbol} />
-                      </span>
-                      <span className="variable-meaning">{meaning}</span>
-                    </div>
-                  ))}
+                  {Object.entries(selectedFormula.variables).map(
+                    ([symbol, meaning]) => (
+                      <div key={symbol} className="variable-row">
+                        <span className="variable-symbol">
+                          <MathBlock latex={symbol} />
+                        </span>
+                        <span className="variable-meaning">{meaning}</span>
+                      </div>
+                    ),
+                  )}
                 </div>
               </div>
 
-              {selectedFormula.derivation && selectedFormula.derivation.length > 0 && (
-                <div className="detail-section">
-                  <h3>Derivation</h3>
-                  <ol className="derivation-steps">
-                    {selectedFormula.derivation.map((step, i) => (
-                      <li key={i} className="derivation-step">{step}</li>
-                    ))}
-                  </ol>
-                </div>
-              )}
+              {selectedFormula.derivation &&
+                selectedFormula.derivation.length > 0 && (
+                  <div className="detail-section">
+                    <h3>Derivation</h3>
+                    <ol className="derivation-steps">
+                      {selectedFormula.derivation.map((step, i) => (
+                        <li key={i} className="derivation-step">
+                          {step}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
 
               <div className="detail-section">
                 <div className="section-header">

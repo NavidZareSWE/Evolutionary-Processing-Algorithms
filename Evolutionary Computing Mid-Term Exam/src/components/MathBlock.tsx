@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 
 interface MathBlockProps {
   latex: string;
@@ -17,7 +17,11 @@ declare global {
   }
 }
 
-export default function MathBlock({ latex, display = false, className = '' }: MathBlockProps) {
+export default function MathBlock({
+  latex,
+  display = false,
+  className = "",
+}: MathBlockProps) {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -33,9 +37,9 @@ export default function MathBlock({ latex, display = false, className = '' }: Ma
   const mathContent = display ? `\\[${latex}\\]` : `\\(${latex}\\)`;
 
   return (
-    <div 
-      ref={containerRef} 
-      className={`math-block ${display ? 'math-display' : 'math-inline'} ${className}`}
+    <div
+      ref={containerRef}
+      className={`math-block ${display ? "math-display" : "math-inline"} ${className}`}
       dangerouslySetInnerHTML={{ __html: mathContent }}
     />
   );

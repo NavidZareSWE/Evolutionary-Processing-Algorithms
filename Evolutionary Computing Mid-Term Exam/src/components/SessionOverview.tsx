@@ -1,15 +1,25 @@
-import React, { useState } from 'react';
-import { BookOpen, Target, List, ArrowRight, Sparkles, MousePointer, Zap } from 'lucide-react';
-import { useNavigation } from '../contexts/NavigationContext';
-import { SESSIONS, getSessionById } from '../constants/sessions';
-import { getSlidesBySession, SLIDES } from '../constants/slides';
-import { DEFINITIONS } from '../constants/definitions';
+import React, { useState } from "react";
+import {
+  BookOpen,
+  Target,
+  List,
+  ArrowRight,
+  Sparkles,
+  MousePointer,
+  Zap,
+} from "lucide-react";
+import { useNavigation } from "../contexts/NavigationContext";
+import { SESSIONS, getSessionById } from "../constants/sessions";
+import { getSlidesBySession, SLIDES } from "../constants/slides";
+import { DEFINITIONS } from "../constants/definitions";
 
 interface SessionOverviewProps {
   onNavigateToSlide: (slideNumber: number) => void;
 }
 
-export default function SessionOverview({ onNavigateToSlide }: SessionOverviewProps) {
+export default function SessionOverview({
+  onNavigateToSlide,
+}: SessionOverviewProps) {
   const { currentSession, goToSession } = useNavigation();
   const [hoveredTopic, setHoveredTopic] = useState<string | null>(null);
   const [hoveredSlide, setHoveredSlide] = useState<number | null>(null);
@@ -26,10 +36,14 @@ export default function SessionOverview({ onNavigateToSlide }: SessionOverviewPr
 
   // Find first slide that mentions a topic
   const findSlideForTopic = (topic: string): number | null => {
-    const topicWords = topic.toLowerCase().split(' ').filter(w => w.length > 3);
-    const slide = slides.find(s => {
-      const searchText = `${s.title} ${s.content} ${s.explanation}`.toLowerCase();
-      return topicWords.some(word => searchText.includes(word));
+    const topicWords = topic
+      .toLowerCase()
+      .split(" ")
+      .filter((w) => w.length > 3);
+    const slide = slides.find((s) => {
+      const searchText =
+        `${s.title} ${s.content} ${s.explanation}`.toLowerCase();
+      return topicWords.some((word) => searchText.includes(word));
     });
     return slide?.number || slides[0]?.number || null;
   };
@@ -37,9 +51,10 @@ export default function SessionOverview({ onNavigateToSlide }: SessionOverviewPr
   // Check if topic has a related definition
   const hasDefinition = (topic: string): boolean => {
     const topicLower = topic.toLowerCase();
-    return Object.values(DEFINITIONS).some(d => 
-      topicLower.includes(d.term.toLowerCase()) || 
-      d.term.toLowerCase().includes(topicLower.split(' ')[0])
+    return Object.values(DEFINITIONS).some(
+      (d) =>
+        topicLower.includes(d.term.toLowerCase()) ||
+        d.term.toLowerCase().includes(topicLower.split(" ")[0]),
     );
   };
 
@@ -55,7 +70,9 @@ export default function SessionOverview({ onNavigateToSlide }: SessionOverviewPr
       <div className="session-header animate-fade-in">
         <div className="session-header-meta">
           <div className="session-badge-wrapper">
-            <span className="session-badge gold-badge">Session {session.id}</span>
+            <span className="session-badge gold-badge">
+              Session {session.id}
+            </span>
             <span className="session-slide-count">{slides.length} slides</span>
           </div>
         </div>
@@ -93,9 +110,9 @@ export default function SessionOverview({ onNavigateToSlide }: SessionOverviewPr
           </div>
           <ul className="topics-list interactive-topics">
             {session.topics.map((topic, i) => (
-              <li 
+              <li
                 key={i}
-                className={`topic-item ${hoveredTopic === topic ? 'hovered' : ''}`}
+                className={`topic-item ${hoveredTopic === topic ? "hovered" : ""}`}
                 onMouseEnter={() => setHoveredTopic(topic)}
                 onMouseLeave={() => setHoveredTopic(null)}
                 onClick={() => handleTopicClick(topic)}
@@ -119,13 +136,15 @@ export default function SessionOverview({ onNavigateToSlide }: SessionOverviewPr
             <Sparkles size={20} className="text-gold" />
             Slides in This Session
           </h3>
-          <span className="section-hint">Click any slide to view full details</span>
+          <span className="section-hint">
+            Click any slide to view full details
+          </span>
         </div>
         <div className="slides-grid">
           {slides.map((slide, index) => (
             <button
               key={slide.number}
-              className={`slide-card ${hoveredSlide === slide.number ? 'hovered' : ''}`}
+              className={`slide-card ${hoveredSlide === slide.number ? "hovered" : ""}`}
               onClick={() => onNavigateToSlide(slide.number)}
               onMouseEnter={() => setHoveredSlide(slide.number)}
               onMouseLeave={() => setHoveredSlide(null)}
@@ -148,7 +167,7 @@ export default function SessionOverview({ onNavigateToSlide }: SessionOverviewPr
           {SESSIONS.map((s, index) => (
             <button
               key={s.id}
-              className={`session-nav-item ${s.id === currentSession ? 'active' : ''}`}
+              className={`session-nav-item ${s.id === currentSession ? "active" : ""}`}
               onClick={() => goToSession(s.id)}
               style={{ animationDelay: `${0.6 + index * 0.04}s` }}
             >

@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { SESSIONS } from '../constants/sessions';
-import { SLIDES } from '../constants/slides';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
+import { SESSIONS } from "../constants/sessions";
+import { SLIDES } from "../constants/slides";
 
 interface NavigationContextType {
   currentSession: number;
@@ -25,7 +31,9 @@ interface NavigationContextType {
   totalSessions: number;
 }
 
-const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
+const NavigationContext = createContext<NavigationContextType | undefined>(
+  undefined,
+);
 
 export function NavigationProvider({ children }: { children: ReactNode }) {
   const [currentSession, setCurrentSession] = useState(1);
@@ -36,26 +44,32 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   const totalSessions = SESSIONS.length;
 
   const getSessionForSlide = useCallback((slideNum: number): number => {
-    const slide = SLIDES.find(s => s.number === slideNum);
+    const slide = SLIDES.find((s) => s.number === slideNum);
     return slide?.session || 1;
   }, []);
 
-  const goToSlide = useCallback((slideNum: number) => {
-    if (slideNum >= 1 && slideNum <= totalSlides) {
-      setCurrentSlide(slideNum);
-      setCurrentSession(getSessionForSlide(slideNum));
-    }
-  }, [totalSlides, getSessionForSlide]);
-
-  const goToSession = useCallback((sessionId: number) => {
-    if (sessionId >= 1 && sessionId <= totalSessions) {
-      const session = SESSIONS.find(s => s.id === sessionId);
-      if (session) {
-        setCurrentSession(sessionId);
-        setCurrentSlide(session.slideRange[0]);
+  const goToSlide = useCallback(
+    (slideNum: number) => {
+      if (slideNum >= 1 && slideNum <= totalSlides) {
+        setCurrentSlide(slideNum);
+        setCurrentSession(getSessionForSlide(slideNum));
       }
-    }
-  }, [totalSessions]);
+    },
+    [totalSlides, getSessionForSlide],
+  );
+
+  const goToSession = useCallback(
+    (sessionId: number) => {
+      if (sessionId >= 1 && sessionId <= totalSessions) {
+        const session = SESSIONS.find((s) => s.id === sessionId);
+        if (session) {
+          setCurrentSession(sessionId);
+          setCurrentSlide(session.slideRange[0]);
+        }
+      }
+    },
+    [totalSessions],
+  );
 
   const goToNextSlide = useCallback(() => {
     if (currentSlide < totalSlides) {
@@ -82,7 +96,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
   }, [currentSession, goToSession]);
 
   const toggleSidebar = useCallback(() => {
-    setSidebarOpen(prev => !prev);
+    setSidebarOpen((prev) => !prev);
   }, []);
 
   const value: NavigationContextType = {
@@ -118,7 +132,7 @@ export function NavigationProvider({ children }: { children: ReactNode }) {
 export function useNavigation() {
   const context = useContext(NavigationContext);
   if (context === undefined) {
-    throw new Error('useNavigation must be used within a NavigationProvider');
+    throw new Error("useNavigation must be used within a NavigationProvider");
   }
   return context;
 }

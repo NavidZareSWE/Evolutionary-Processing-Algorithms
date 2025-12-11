@@ -1,11 +1,17 @@
-import React, { useState, useMemo } from 'react';
-import { Search, FileText, BookOpen, Calculator, ArrowRight } from 'lucide-react';
-import { searchSlides } from '../constants/slides';
-import { searchDefinitions } from '../constants/definitions';
-import { searchFormulas } from '../constants/formulas';
-import MathBlock from './MathBlock';
+import React, { useState, useMemo } from "react";
+import {
+  Search,
+  FileText,
+  BookOpen,
+  Calculator,
+  ArrowRight,
+} from "lucide-react";
+import { searchSlides } from "../constants/slides";
+import { searchDefinitions } from "../constants/definitions";
+import { searchFormulas } from "../constants/formulas";
+import MathBlock from "./MathBlock";
 
-type ResultType = 'slide' | 'definition' | 'formula';
+type ResultType = "slide" | "definition" | "formula";
 
 interface SearchResult {
   type: ResultType;
@@ -19,8 +25,10 @@ interface SearchViewProps {
 }
 
 export default function SearchView({ onNavigateToSlide }: SearchViewProps) {
-  const [query, setQuery] = useState('');
-  const [selectedResult, setSelectedResult] = useState<SearchResult | null>(null);
+  const [query, setQuery] = useState("");
+  const [selectedResult, setSelectedResult] = useState<SearchResult | null>(
+    null,
+  );
 
   const results = useMemo(() => {
     if (!query.trim()) return [];
@@ -29,33 +37,33 @@ export default function SearchView({ onNavigateToSlide }: SearchViewProps) {
 
     // Search slides
     const slideResults = searchSlides(query);
-    slideResults.forEach(slide => {
+    slideResults.forEach((slide) => {
       searchResults.push({
-        type: 'slide',
+        type: "slide",
         title: `Slide ${slide.number}: ${slide.title}`,
-        preview: slide.explanation.slice(0, 150) + '...',
+        preview: slide.explanation.slice(0, 150) + "...",
         data: slide,
       });
     });
 
     // Search definitions
     const defResults = searchDefinitions(query);
-    defResults.forEach(def => {
+    defResults.forEach((def) => {
       searchResults.push({
-        type: 'definition',
+        type: "definition",
         title: def.term,
-        preview: def.definition.slice(0, 150) + '...',
+        preview: def.definition.slice(0, 150) + "...",
         data: def,
       });
     });
 
     // Search formulas
     const formulaResults = searchFormulas(query);
-    formulaResults.forEach(formula => {
+    formulaResults.forEach((formula) => {
       searchResults.push({
-        type: 'formula',
+        type: "formula",
         title: formula.name,
-        preview: formula.plainEnglish.slice(0, 150) + '...',
+        preview: formula.plainEnglish.slice(0, 150) + "...",
         data: formula,
       });
     });
@@ -65,15 +73,18 @@ export default function SearchView({ onNavigateToSlide }: SearchViewProps) {
 
   const getIcon = (type: ResultType) => {
     switch (type) {
-      case 'slide': return <FileText size={18} className="text-primary-400" />;
-      case 'definition': return <BookOpen size={18} className="text-accent-400" />;
-      case 'formula': return <Calculator size={18} className="text-green-400" />;
+      case "slide":
+        return <FileText size={18} className="text-primary-400" />;
+      case "definition":
+        return <BookOpen size={18} className="text-accent-400" />;
+      case "formula":
+        return <Calculator size={18} className="text-green-400" />;
     }
   };
 
   const handleResultClick = (result: SearchResult) => {
     setSelectedResult(result);
-    if (result.type === 'slide') {
+    if (result.type === "slide") {
       onNavigateToSlide(result.data.number);
     }
   };
@@ -104,7 +115,8 @@ export default function SearchView({ onNavigateToSlide }: SearchViewProps) {
 
       {query && (
         <div className="search-stats">
-          Found {results.length} result{results.length !== 1 ? 's' : ''} for "{query}"
+          Found {results.length} result{results.length !== 1 ? "s" : ""} for "
+          {query}"
         </div>
       )}
 
@@ -113,7 +125,7 @@ export default function SearchView({ onNavigateToSlide }: SearchViewProps) {
           {results.map((result, i) => (
             <button
               key={`${result.type}-${i}`}
-              className={`result-item ${selectedResult === result ? 'selected' : ''}`}
+              className={`result-item ${selectedResult === result ? "selected" : ""}`}
               onClick={() => handleResultClick(result)}
             >
               <div className="result-icon">{getIcon(result.type)}</div>
@@ -129,7 +141,9 @@ export default function SearchView({ onNavigateToSlide }: SearchViewProps) {
             <div className="no-results-message">
               <Search size={48} className="text-surface-600" />
               <p>No results found for "{query}"</p>
-              <p className="suggestion">Try different keywords or check spelling</p>
+              <p className="suggestion">
+                Try different keywords or check spelling
+              </p>
             </div>
           )}
         </div>
@@ -141,15 +155,17 @@ export default function SearchView({ onNavigateToSlide }: SearchViewProps) {
               <span className="detail-type">{selectedResult.type}</span>
             </div>
             <h2 className="detail-title">{selectedResult.title}</h2>
-            
-            {selectedResult.type === 'slide' && (
+
+            {selectedResult.type === "slide" && (
               <div className="slide-detail">
                 <div className="detail-section">
                   <h3>Content</h3>
                   <div className="content-box">
-                    {selectedResult.data.content.split('\n').map((line: string, i: number) => (
-                      <p key={i}>{line}</p>
-                    ))}
+                    {selectedResult.data.content
+                      .split("\n")
+                      .map((line: string, i: number) => (
+                        <p key={i}>{line}</p>
+                      ))}
                   </div>
                 </div>
                 <div className="detail-section">
@@ -159,12 +175,14 @@ export default function SearchView({ onNavigateToSlide }: SearchViewProps) {
                 <div className="detail-section">
                   <h3>Key Points</h3>
                   <ul>
-                    {selectedResult.data.keyPoints.map((kp: string, i: number) => (
-                      <li key={i}>{kp}</li>
-                    ))}
+                    {selectedResult.data.keyPoints.map(
+                      (kp: string, i: number) => (
+                        <li key={i}>{kp}</li>
+                      ),
+                    )}
                   </ul>
                 </div>
-                <button 
+                <button
                   className="btn btn-primary"
                   onClick={() => onNavigateToSlide(selectedResult.data.number)}
                 >
@@ -173,7 +191,7 @@ export default function SearchView({ onNavigateToSlide }: SearchViewProps) {
               </div>
             )}
 
-            {selectedResult.type === 'definition' && (
+            {selectedResult.type === "definition" && (
               <div className="definition-detail">
                 <div className="detail-section">
                   <h3>Definition</h3>
@@ -189,16 +207,18 @@ export default function SearchView({ onNavigateToSlide }: SearchViewProps) {
                   <div className="detail-section">
                     <h3>Examples</h3>
                     <ul>
-                      {selectedResult.data.examples.map((ex: string, i: number) => (
-                        <li key={i}>{ex}</li>
-                      ))}
+                      {selectedResult.data.examples.map(
+                        (ex: string, i: number) => (
+                          <li key={i}>{ex}</li>
+                        ),
+                      )}
                     </ul>
                   </div>
                 )}
               </div>
             )}
 
-            {selectedResult.type === 'formula' && (
+            {selectedResult.type === "formula" && (
               <div className="formula-detail">
                 <div className="formula-display-large">
                   <MathBlock latex={selectedResult.data.latexDisplay} display />
