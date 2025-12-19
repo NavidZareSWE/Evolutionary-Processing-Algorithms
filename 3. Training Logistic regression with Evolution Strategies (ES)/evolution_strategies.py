@@ -1,8 +1,3 @@
-"""
-Evolution Strategies for Heart Disease Classification
-A complete implementation of (mu + lambda)-ES for binary logistic regression
-"""
-
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -11,32 +6,12 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support, con
 import os
 from io import StringIO
 
-# Set random seed for reproducibility
-np.random.seed(42)
-
 
 class EvolutionStrategyLogisticRegression:
-    """
-    Evolution Strategy for Binary Logistic Regression with Self-Adaptive Mutation
-    
-    Implements (mu + lambda)-ES or (mu, lambda)-ES for optimizing logistic regression
-    parameters using self-adaptive mutation with individual step sizes.
-    """
-
-    def __init__(self, mu=30, lambda_offspring=210, lambda_reg=0.01,
+    def __init__(self, mu=30, lambda_offspring=None, lambda_reg=0.01,
                  max_generations=100, selection_type='plus'):
-        """
-        Initialize ES parameters
-
-        Args:
-            mu (int): Number of parents
-            lambda_offspring (int): Number of offspring per generation
-            lambda_reg (float): L2 regularization coefficient
-            max_generations (int): Maximum number of generations to run
-            selection_type (str): 'plus' for (mu+lambda), 'comma' for (mu,lambda)
-        """
         self.mu = mu
-        self.lambda_offspring = lambda_offspring
+        self.lambda_offspring = lambda_offspring if lambda_offspring is not None else 7 * mu
         self.lambda_reg = lambda_reg
         self.max_generations = max_generations
         self.selection_type = selection_type
@@ -49,257 +24,378 @@ class EvolutionStrategyLogisticRegression:
         self.best_theta = None
 
     def sigmoid(self, z):
-        """
-        Logistic sigmoid function with numerical stability
-        
-        Args:
-            z (np.ndarray): Input values
-            
-        Returns:
-            np.ndarray: Sigmoid of input values
-        """
-        # TODO: Implement sigmoid with clipping for numerical stability
-        pass
+        return 1 / (1 + np.exp(-z))
 
     def cross_entropy_loss(self, X, y, theta):
-        """
-        Compute cross-entropy loss with L2 regularization
+        W = theta[:-1]
+        b = theta[-1]
+        z = X @ W + b
+        y_pred = self.sigmoid(z)
 
-        Args:
-            X (np.ndarray): Input features (N x d)
-            y (np.ndarray): Target labels (N,)
-            theta (np.ndarray): Parameters [W, b] (d+1,)
+        eps = 1e-15  # avoid log(0)
+        y_pred = np.clip(y_pred, eps, 1 - eps)
 
-        Returns:
-            float: Total loss (cross-entropy + L2 regularization)
-        """
-        # TODO: Extract weights W and bias b from theta
-        # TODO: Compute predictions using sigmoid
-        # TODO: Compute cross-entropy loss
-        # TODO: Add L2 regularization (only on weights, not bias)
-        # TODO: Return total loss
-        pass
+        n = len(y)
+        ce_loss = -1/n * np.sum((y * np.log(y_pred)) +
+                                (1-y) * np.log(1-y_pred))
+
+        l2 = self.lambda_reg * np.sum(W ** 2)
+
+        return ce_loss + l2
 
     def fitness(self, X, y, theta):
-        """
-        Fitness function (negative loss - higher is better)
-        
-        Args:
-            X (np.ndarray): Input features
-            y (np.ndarray): Target labels
-            theta (np.ndarray): Parameters
-            
-        Returns:
-            float: Fitness value
-        """
-        # TODO: Return negative of cross_entropy_loss
-        pass
+        return -self.cross_entropy_loss(X, y, theta)
 
     def predict(self, X, theta):
-        """
-        Make binary predictions
-        
-        Args:
-            X (np.ndarray): Input features
-            theta (np.ndarray): Parameters
-            
-        Returns:
-            np.ndarray: Binary predictions (0 or 1)
-        """
-        # TODO: Extract W and b from theta
-        # TODO: Compute sigmoid(X @ W + b)
-        # TODO: Threshold at 0.5 and return binary predictions
-        pass
+        W = theta[:-1]
+        b = theta[-1]
+        z = X @ W + b
+        prob = self.sigmoid(z)
+        # Convert True/False array to int values
+        predictions = (prob >= 0.5).astype(int)
+        return predictions
 
     def initialize_population(self, d):
-        """
-        Initialize population with random parameters and step sizes
-
-        Args:
-            d (int): Number of features
-
-        Returns:
-            list: Population of individuals, each is [theta, sigma] concatenated
-        """
-        # TODO: Create mu individuals
-        # TODO: For each individual:
-        #       - Initialize theta (W and b) with small random values
-        #       - Initialize sigma (step sizes) with small positive values
-        #       - Concatenate [theta, sigma] into single array
-        # TODO: Return list of individuals
-        pass
+        pop = []
+        for pop_size in range(self.mu):
+            theta = np.random.normal(0, 1, size=d + 1)
+            sigma = np.abs(np.random.normal(0, 1, size=d + 1))
+            individual = np.concatenate([theta, sigma])
+            pop.append(individual)
+        return pop
 
     def mutate(self, individual, n):
-        """
-        Self-adaptive mutation with individual step sizes
+        theta = individual[:n]   # First n elements
+        sigma = individual[n:]   # Remaining n elements
+        tau = 1 / np.sqrt(2*n)
+        tau_prime = 1 / np.sqrt(2*np.sqrt(n))
+        N_global = np.random.normal(0, 1)
+        N_local = np.random.normal(0, 1, size=n)
+        sigma_new = sigma * np.exp(tau * N_global + tau_prime * N_local)
+        # From: https://numpy.org/doc/stable/reference/generated/numpy.maximum.html
+        # Compare two arrays and return a new array containing the element-wise maxima.
+        # If one of the elements being compared is a NaN, then that element is returned.
+        # If both elements are NaNs then the first is returned.
+        # The latter distinction is important for complex NaNs, which are defined as at least one
+        # of the real or imaginary parts being a NaN. The net effect is that NaNs are propagated.
+        min_sigma = 1e-6
+        N_normal = np.random.normal(0, 1, size=n)
+        sigma_new = np.maximum(sigma_new, min_sigma)
+        theta_new = theta + sigma_new * N_normal
+        theta_new = np.clip(theta_new, -5, 5)
+        return np.concatenate([theta_new, sigma_new])
 
-        Args:
-            individual (np.ndarray): Concatenated [theta, sigma]
-            n (int): Dimensionality of theta (d+1)
-
-        Returns:
-            np.ndarray: Mutated individual [theta_new, sigma_new]
-        """
-        # TODO: Split individual into theta and sigma
-        # TODO: Compute learning rates tau and tau_prime
-        # TODO: Generate global random number N_global
-        # TODO: Generate local random numbers N_local
-        # TODO: Update step sizes using self-adaptive rule
-        # TODO: Enforce minimum step size
-        # TODO: Mutate parameters using updated step sizes
-        # TODO: Clip parameters to reasonable range
-        # TODO: Return concatenated [theta_new, sigma_new]
-        pass
+    def perform_local_discrete(self, parents):
+        "Creates one child"
+        num_parents = len(parents)
+        length = len(parents[0])
+        child = np.zeros(length)
+        for i in range(length):
+            parent_idx = np.random.randint(0, num_parents)
+            child[i] = parents[parent_idx][i]
+        return child
 
     def fit(self, X_train, y_train, X_test=None, y_test=None):
-        """
-        Train using Evolution Strategy
+        d = len(X_train[0])
+        pop = self.initialize_population(d=d)
+        for generation in range(self.max_generations):
+            lambda_size = 7 * self.mu
+            _lambda = []
 
-        Args:
-            X_train (np.ndarray): Training features
-            y_train (np.ndarray): Training labels
-            X_test (np.ndarray, optional): Test features for tracking
-            y_test (np.ndarray, optional): Test labels for tracking
-            
-        Returns:
-            self: Trained model
-        """
-        # TODO: Initialize population
-        # TODO: For each generation:
-        #       - Evaluate fitness of all individuals
-        #       - Track best and mean fitness
-        #       - Track training accuracy
-        #       - Track test accuracy (if provided)
-        #       - Print progress every 10 generations
-        #       - Generate offspring by mutation
-        #       - Perform selection (plus or comma)
-        # TODO: Store best individual
-        # TODO: Return self
-        pass
+            # X-Over
+            for i in range(lambda_size):
+                parent_indices = np.random.choice(
+                    len(pop), size=2, replace=True)
+                parents = [pop[idx] for idx in parent_indices]
+                child = self.perform_local_discrete(parents)
+                _lambda.append(child)
+
+            # Mutate
+            for i in range(len(_lambda)):
+                _lambda[i] = self.mutate(_lambda[i], d + 1)
+
+            fitness = []
+            # Survivor Selection
+            for ind in _lambda:
+                theta = ind[:(d+1)]
+                f = self.fitness(X_train, y_train, theta)
+                fitness.append((f, ind))
+
+            fitness.sort(key=lambda x: x[0], reverse=True)
+            new_pop = [ind for (f, ind) in fitness[:self.mu]]
+            pop = new_pop
+
+            ###################################################################
+            # Rest is for Analysis
+            ###################################################################
+            # Track best and mean fitness
+            best_fitness = fitness[0][0]
+            mean_fitness = np.mean([f for (f, ind) in fitness[:self.mu]])
+            self.best_fitness_history.append(best_fitness)
+            self.mean_fitness_history.append(mean_fitness)
+
+            # Track accuracy
+            best_theta = pop[0][:(d+1)]
+            train_preds = self.predict(X_train, best_theta)
+            train_accuracy = accuracy_score(y_train, train_preds)
+            self.train_accuracy_history.append(train_accuracy)
+
+            if X_test is not None and y_test is not None:
+                test_preds = self.predict(X_test, best_theta)
+                test_acc = accuracy_score(y_test, test_preds)
+                self.test_accuracy_history.append(test_acc)
+
+            # Print progress
+            if (generation + 1) % 10 == 0 or generation == 0:
+                print(f"Gen {generation+1:3d}/{self.max_generations} | "
+                      f"Best Loss: {best_fitness:.4f} | "
+                      f"Train Acc: {train_accuracy:.4f}")
+
+        # Finalize: store best theta
+        self.best_theta = pop[0][:(d+1)]
+
+        return self
 
     def evaluate(self, X_test, y_test):
-        """
-        Evaluate on test set and compute all metrics
-        
-        Args:
-            X_test (np.ndarray): Test features
-            y_test (np.ndarray): Test labels
-            
-        Returns:
-            dict: Dictionary containing accuracy, precision, recall, f1_score, confusion_matrix
-        """
-        # TODO: Make predictions using best_theta
-        # TODO: Compute accuracy
-        # TODO: Compute precision, recall, F1-score
-        # TODO: Compute confusion matrix
-        # TODO: Return dictionary with all metrics
-        pass
+        y_pred = self.predict(X_test, self.best_theta)
+
+        accuracy = accuracy_score(y_test, y_pred)
+        precision, recall, f1, _ = precision_recall_fscore_support(
+            y_test, y_pred, average='binary'
+        )
+        cm = confusion_matrix(y_test, y_pred)
+
+        return {
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1_score': f1,
+            'confusion_matrix': cm
+        }
 
     def plot_results(self, save_prefix='es_results'):
-        """
-        Generate training plots
-        
-        Args:
-            save_prefix (str): Prefix for saved plot files
-        """
-        # TODO: Plot 1: Best and Mean Training Loss vs Generations
-        # TODO: Plot 2: Training and Test Accuracy vs Generations
-        pass
+        # Plot 1: Training Loss
+        plt.figure(figsize=(10, 5))
+        generations = range(1, len(self.best_fitness_history) + 1)
+
+        plt.plot(generations, self.best_fitness_history,
+                 label='Best Training Loss', color='blue')
+        plt.plot(generations, self.mean_fitness_history,
+                 label='Mean Training Loss', color='orange', alpha=0.7)
+
+        plt.xlabel('Generation')
+        plt.ylabel('Loss')
+        plt.title('Training Loss vs Generation')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(f'{save_prefix}_fitness.png', dpi=300)
+        plt.show()
+
+        # Plot 2: Accuracy
+        plt.figure(figsize=(10, 5))
+
+        plt.plot(generations, self.train_accuracy_history,
+                 label='Training Accuracy', color='blue')
+
+        if self.test_accuracy_history:
+            plt.plot(generations, self.test_accuracy_history,
+                     label='Test Accuracy', color='red')
+
+        plt.xlabel('Generation')
+        plt.ylabel('Accuracy')
+        plt.title('Accuracy vs Generation')
+        plt.legend()
+        plt.grid(True, alpha=0.3)
+        plt.tight_layout()
+        plt.savefig(f'{save_prefix}_accuracy.png', dpi=300)
+        plt.show()
 
     def plot_confusion_matrix(self, cm, save_prefix='es_results'):
-        """
-        Plot confusion matrix
-        
-        Args:
-            cm (np.ndarray): Confusion matrix
-            save_prefix (str): Prefix for saved plot file
-        """
-        # TODO: Create heatmap visualization of confusion matrix
-        # TODO: Add labels, colorbar, and annotations
-        # TODO: Save and display
-        pass
+        plt.figure(figsize=(8, 6))
+
+        # Display as heatmap
+        plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+        plt.title('Confusion Matrix')
+        plt.colorbar()
+
+        # Add labels
+        classes = ['No Disease (0)', 'Disease (1)']
+        tick_marks = [0, 1]
+        plt.xticks(tick_marks, classes)
+        plt.yticks(tick_marks, classes)
+
+        # Add text annotations
+        thresh = cm.max() / 2
+        for i in range(2):
+            for j in range(2):
+                plt.text(j, i, format(cm[i, j], 'd'),
+                         ha='center', va='center',
+                         color='white' if cm[i, j] > thresh else 'black',
+                         fontsize=20)
+
+        plt.xlabel('Predicted Label')
+        plt.ylabel('True Label')
+        plt.tight_layout()
+        plt.savefig(f'{save_prefix}_confusion_matrix.png', dpi=300)
+        plt.show()
 
 
 def load_and_preprocess_data(csv_data):
     """
     Load and preprocess the Heart Disease dataset
-
-    Args:
-        csv_data (str): CSV data as string
-
-    Returns:
-        tuple: (X_train, X_test, y_train, y_test)
-               All scaled and ready for training
     """
-    # TODO: Read CSV using StringIO
-    # TODO: Separate features and target
-    # TODO: Binarize target (0 vs 1+)
-    # TODO: Train-test split (70-30, stratified)
-    # TODO: Feature scaling (z-score standardization on training set)
-    # TODO: Apply same scaling to test set
-    # TODO: Return scaled train and test sets
-    pass
+    # Read CSV from string
+    df = pd.read_csv(StringIO(csv_data))
+
+    # Separate features (all columns except last) and target (last column)
+    X = df.iloc[:, :-1].values
+    y = df.iloc[:, -1].values
+
+    # Binarize target: 0 stays 0, anything > 0 becomes 1
+    y = (y > 0).astype(int)
+
+    # Train-test split (70-30, stratified)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.3, random_state=42, stratify=y
+    )
+
+    # Feature scaling (z-score standardization)
+    # Compute mean and std on TRAINING set only
+    mean = X_train.mean(axis=0)
+    std = X_train.std(axis=0)
+
+    # Avoid division by zero
+    std[std == 0] = 1
+
+    # Apply scaling
+    X_train_scaled = (X_train - mean) / std
+    X_test_scaled = (X_test - mean) / std  # Use TRAINING mean/std
+
+    return X_train_scaled, X_test_scaled, y_train, y_test
 
 
 def load_csv_file(script_dir):
-    """
-    Load the Heart Disease CSV file from various possible locations/names
-    
-    Args:
-        script_dir (str): Directory where the script is located
-        
-    Returns:
-        str: CSV data as string, or None if not found
-    """
-    # TODO: Try multiple possible CSV filenames
-    # TODO: Check if each file exists
-    # TODO: If found, read and return the data
-    # TODO: Print diagnostic messages
-    # TODO: Return None if not found
-    pass
 
+    possible_names = [
+        'Heart_Disease_dataset.csv',
+        'Heart Disease dataset.csv',
+        'heart_disease_dataset.csv',
+        'Heart_Disease_Dataset.csv',
+        'HeartDiseaseDataset.csv',
+        'heart.csv',
+        'heart-disease.csv'
+    ]
 
-def print_diagnostics(script_dir):
-    """
-    Print diagnostic information about files in the directory
-    
-    Args:
-        script_dir (str): Directory to inspect
-    """
-    # TODO: List all files in directory
-    # TODO: Print Python files
-    # TODO: Print CSV files
-    # TODO: Print other relevant files
-    pass
+    # Directories to search
+    possible_dirs = [
+        script_dir,                              # Same directory as script
+        os.path.join(script_dir, 'Extras'),      # Extras subdirectory
+        os.path.join(script_dir, 'extras'),      # lowercase version
+        os.path.join(script_dir, 'data'),        # common data folder name
+        os.path.join(script_dir, 'Data'),
+    ]
+
+    for directory in possible_dirs:
+        for filename in possible_names:
+            file_path = os.path.join(directory, filename)
+            if os.path.exists(file_path):
+                print(f"[SUCCESS] Found CSV file: {file_path}")
+                try:
+                    with open(file_path, 'r') as f:
+                        csv_data = f.read()
+                    print(
+                        f"[SUCCESS] Loaded CSV data ({len(csv_data):,} characters)")
+                    return csv_data
+                except Exception as e:
+                    print(f"[ERROR] Could not read file: {e}")
+
+    # Print what was searched if not found
+    print("[NOT FOUND] Searched in:")
+    for directory in possible_dirs:
+        print(f"  - {directory}")
+
+    return None
 
 
 def main():
-    """
-    Main execution function
-    """
+
     print("=" * 60)
     print("Evolution Strategies for Heart Disease Classification")
     print("=" * 60)
     print()
-    
-    # TODO: Get script directory
-    # TODO: Print diagnostics
-    # TODO: Load CSV file
-    # TODO: If CSV not found, print error and return
-    
-    # TODO: Print hyperparameters
-    
-    # TODO: Load and preprocess data
-    # TODO: Print dataset statistics
-    
-    # TODO: Initialize ES model
-    # TODO: Train model
-    
-    # TODO: Evaluate on test set
-    # TODO: Print results
-    
-    # TODO: Generate plots
-    # TODO: Print completion message
+
+    # Get the directory where the script is located
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    csv_data = load_csv_file(script_dir)
+
+    if csv_data is None:
+        print()
+        print("=" * 60)
+        print("[ERROR] Could not find the CSV file!")
+        print()
+        print("Please make sure 'Heart_Disease_dataset.csv' is in the same")
+        print("folder as this Python script.")
+        print()
+        print("Expected location:", os.path.join(
+            script_dir, 'Heart_Disease_dataset.csv'))
+        return
+
+    print()
+    print("=" * 60)
+    print()
+    print("Hyperparameters:")
+    print("  - mu (parents): 30")
+    print("  - lambda (offspring): 210")
+    print("  - lambda_reg (L2 regularization): 0.01")
+    print("  - max_generations: 100")
+    print("  - Selection: (mu + lambda)-ES")
+    print()
+
+    # Load and preprocess data
+    X_train, X_test, y_train, y_test = load_and_preprocess_data(csv_data)
+
+    print(f"Training set size: {X_train.shape[0]}")
+    print(f"Test set size: {X_test.shape[0]}")
+    print(f"Number of features: {X_train.shape[1]}")
+    print(f"Class distribution (train): {np.bincount(y_train)}")
+    print(f"Class distribution (test): {np.bincount(y_test)}")
+    print()
+
+    # Initialize and train ES
+    es = EvolutionStrategyLogisticRegression(
+        mu=30,
+        lambda_offspring=210,
+        lambda_reg=0.01,
+        max_generations=100,
+        selection_type='plus'
+    )
+
+    print("Training Evolution Strategy...")
+    print()
+    es.fit(X_train, y_train, X_test, y_test)
+
+    # Evaluate on test set
+    print()
+    print("=" * 60)
+    print("Final Results on Test Set")
+    print("=" * 60)
+    results = es.evaluate(X_test, y_test)
+
+    print(f"Accuracy:  {results['accuracy']:.4f}")
+    print(f"Precision: {results['precision']:.4f}")
+    print(f"Recall:    {results['recall']:.4f}")
+    print(f"F1-Score:  {results['f1_score']:.4f}")
+    print()
+    print("Confusion Matrix:")
+    print(results['confusion_matrix'])
+    print()
+
+    # Generate plots
+    print("Generating plots...")
+    es.plot_results()
+    es.plot_confusion_matrix(results['confusion_matrix'])
+    print("Plots saved successfully!")
 
 
 if __name__ == "__main__":
