@@ -9,12 +9,11 @@ from io import StringIO
 
 class EvolutionStrategyLogisticRegression:
     def __init__(self, mu=30, lambda_offspring=None, lambda_reg=0.01,
-                 max_generations=100, selection_type='plus'):
+                 max_generations=100):
         self.mu = mu
         self.lambda_offspring = lambda_offspring if lambda_offspring is not None else 7 * mu
         self.lambda_reg = lambda_reg
         self.max_generations = max_generations
-        self.selection_type = selection_type
 
         # History tracking
         self.best_fitness_history = []
@@ -58,8 +57,8 @@ class EvolutionStrategyLogisticRegression:
     def initialize_population(self, d):
         pop = []
         for pop_size in range(self.mu):
-            theta = np.random.normal(0, 1, size=d + 1)
-            sigma = np.abs(np.random.normal(0, 1, size=d + 1))
+            theta = np.random.uniform(-0.1, 0.1, size=d + 1)
+            sigma = np.random.uniform(0.01, 0.1, size=d + 1)
             individual = np.concatenate([theta, sigma])
             pop.append(individual)
         return pop
@@ -349,7 +348,7 @@ def main():
     print("  - lambda (offspring): 210")
     print("  - lambda_reg (L2 regularization): 0.01")
     print("  - max_generations: 100")
-    print("  - Selection: (mu + lambda)-ES")
+    print("  - Selection: (mu , lambda)-ES")
     print()
 
     # Load and preprocess data
@@ -368,7 +367,6 @@ def main():
         lambda_offspring=210,
         lambda_reg=0.01,
         max_generations=100,
-        selection_type='plus'
     )
 
     print("Training Evolution Strategy...")
