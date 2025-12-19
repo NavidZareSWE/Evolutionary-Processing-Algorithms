@@ -6,6 +6,8 @@ from sklearn.metrics import accuracy_score, precision_recall_fscore_support, con
 import os
 from io import StringIO
 
+np.random.seed(42)
+
 
 class EvolutionStrategyLogisticRegression:
     def __init__(self, mu=30, lambda_offspring=None, lambda_reg=0.01,
