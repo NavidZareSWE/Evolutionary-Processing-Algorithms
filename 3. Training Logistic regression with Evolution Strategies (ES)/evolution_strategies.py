@@ -13,16 +13,46 @@ class EvolutionStrategyLogisticRegression:
     def __init__(self, mu=30, lambda_offspring=None, lambda_reg=0.01,
                  max_generations=100):
         self.mu = mu
-        self.lambda_offspring = lambda_offspring if lambda_offspring is not None else 7 * mu
+        self.lambda_size = lambda_offspring if lambda_offspring is not None else 7 * mu
         self.lambda_reg = lambda_reg
         self.max_generations = max_generations
 
         # History tracking
-        self.best_fitness_history = []
-        self.mean_fitness_history = []
+        self.best_loss_history = []
+        self.mean_loss_history = []
         self.train_accuracy_history = []
         self.test_accuracy_history = []
         self.best_theta = None
+
+    def initialize_population(self, d):
+        pop = []
+        for pop_size in range(self.mu):
+            theta = np.random.uniform(-0.1, 0.1, size=d + 1)
+            sigma = np.random.uniform(0.01, 0.1, size=d + 1)
+            individual = np.concatenate([theta, sigma])
+            pop.append(individual)
+        return pop
+
+    def mutate(self, individual, n):
+        theta = individual[:n]   # First n elements
+        sigma = individual[n:]   # Remaining n elements
+        tau = 1 / np.sqrt(2*n)
+        tau_prime = 1 / np.sqrt(2*np.sqrt(n))
+        N_global = np.random.normal(0, 1)
+        N_local = np.random.normal(0, 1, size=n)
+        sigma_new = sigma * np.exp(tau * N_global + tau_prime * N_local)
+        # From: https://numpy.org/doc/stable/reference/generated/numpy.maximum.html
+        # Compare two arrays and return a new array containing the element-wise maxima.
+        # If one of the elements being compared is a NaN, then that element is returned.
+        # If both elements are NaNs then the first is returned.
+        # The latter distinction is important for complex NaNs, which are defined as at least one
+        # of the real or imaginary parts being a NaN. The net effect is that NaNs are propagated.
+        min_sigma = 1e-6
+        N_normal = np.random.normal(0, 1, size=n)
+        sigma_new = np.maximum(sigma_new, min_sigma)
+        theta_new = theta + sigma_new * N_normal
+        theta_new = np.clip(theta_new, -5, 5)
+        return np.concatenate([theta_new, sigma_new])
 
     def sigmoid(self, z):
         return 1 / (1 + np.exp(-z))
@@ -56,36 +86,6 @@ class EvolutionStrategyLogisticRegression:
         predictions = (prob >= 0.5).astype(int)
         return predictions
 
-    def initialize_population(self, d):
-        pop = []
-        for pop_size in range(self.mu):
-            theta = np.random.uniform(-0.1, 0.1, size=d + 1)
-            sigma = np.random.uniform(0.01, 0.1, size=d + 1)
-            individual = np.concatenate([theta, sigma])
-            pop.append(individual)
-        return pop
-
-    def mutate(self, individual, n):
-        theta = individual[:n]   # First n elements
-        sigma = individual[n:]   # Remaining n elements
-        tau = 1 / np.sqrt(2*n)
-        tau_prime = 1 / np.sqrt(2*np.sqrt(n))
-        N_global = np.random.normal(0, 1)
-        N_local = np.random.normal(0, 1, size=n)
-        sigma_new = sigma * np.exp(tau * N_global + tau_prime * N_local)
-        # From: https://numpy.org/doc/stable/reference/generated/numpy.maximum.html
-        # Compare two arrays and return a new array containing the element-wise maxima.
-        # If one of the elements being compared is a NaN, then that element is returned.
-        # If both elements are NaNs then the first is returned.
-        # The latter distinction is important for complex NaNs, which are defined as at least one
-        # of the real or imaginary parts being a NaN. The net effect is that NaNs are propagated.
-        min_sigma = 1e-6
-        N_normal = np.random.normal(0, 1, size=n)
-        sigma_new = np.maximum(sigma_new, min_sigma)
-        theta_new = theta + sigma_new * N_normal
-        theta_new = np.clip(theta_new, -5, 5)
-        return np.concatenate([theta_new, sigma_new])
-
     def perform_local_discrete(self, parents):
         "Creates one child"
         num_parents = len(parents)
@@ -100,11 +100,10 @@ class EvolutionStrategyLogisticRegression:
         d = len(X_train[0])
         pop = self.initialize_population(d=d)
         for generation in range(self.max_generations):
-            lambda_size = 7 * self.mu
             _lambda = []
 
             # X-Over
-            for i in range(lambda_size):
+            for i in range(self.lambda_size):
                 parent_indices = np.random.choice(
                     len(pop), size=2, replace=True)
                 parents = [pop[idx] for idx in parent_indices]
@@ -132,8 +131,8 @@ class EvolutionStrategyLogisticRegression:
             # Track best and mean fitness
             best_fitness = fitness[0][0]
             mean_fitness = np.mean([f for (f, ind) in fitness[:self.mu]])
-            self.best_fitness_history.append(best_fitness)
-            self.mean_fitness_history.append(mean_fitness)
+            self.best_loss_history.append(-best_fitness)
+            self.mean_loss_history.append(-mean_fitness)
 
             # Track accuracy
             best_theta = pop[0][:(d+1)]
@@ -147,9 +146,9 @@ class EvolutionStrategyLogisticRegression:
                 self.test_accuracy_history.append(test_acc)
 
             # Print progress
-            if (generation + 1) % 10 == 0 or generation == 0:
+            # if (generation + 1) % 10 == 0 or generation == 0:
                 print(f"Gen {generation+1:3d}/{self.max_generations} | "
-                      f"Best Loss: {best_fitness:.4f} | "
+                      f"Best Loss: {-best_fitness:.4f} | "
                       f"Train Acc: {train_accuracy:.4f}")
 
         # Finalize: store best theta
@@ -177,11 +176,11 @@ class EvolutionStrategyLogisticRegression:
     def plot_results(self, save_prefix='es_results'):
         # Plot 1: Training Loss
         plt.figure(figsize=(10, 5))
-        generations = range(1, len(self.best_fitness_history) + 1)
+        generations = range(1, len(self.best_loss_history) + 1)
 
-        plt.plot(generations, self.best_fitness_history,
+        plt.plot(generations, self.best_loss_history,
                  label='Best Training Loss', color='blue')
-        plt.plot(generations, self.mean_fitness_history,
+        plt.plot(generations, self.mean_loss_history,
                  label='Mean Training Loss', color='orange', alpha=0.7)
 
         plt.xlabel('Generation')
@@ -337,9 +336,6 @@ def main():
         print()
         print("Please make sure 'Heart_Disease_dataset.csv' is in the same")
         print("folder as this Python script.")
-        print()
-        print("Expected location:", os.path.join(
-            script_dir, 'Heart_Disease_dataset.csv'))
         return
 
     print()
