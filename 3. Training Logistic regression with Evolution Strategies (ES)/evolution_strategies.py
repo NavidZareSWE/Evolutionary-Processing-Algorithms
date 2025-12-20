@@ -243,26 +243,26 @@ class EvolutionStrategyLogisticRegression:
 
 
 def load_and_preprocess_data(csv_data):
-    """
-    Load and preprocess the Heart Disease dataset
-    """
-    # Read CSV from string
     df = pd.read_csv(StringIO(csv_data))
-
+    # .iloc[] is primarily integer position based (from 0 to length-1 of the axis), but may also be used with a boolean array.
     # Separate features (all columns except last) and target (last column)
     X = df.iloc[:, :-1].values
-    y = df.iloc[:, -1].values
+    target_col = df.iloc[:, -1].values
 
-    # Binarize target: 0 stays 0, anything > 0 becomes 1
-    y = (y > 0).astype(int)
+    # Binarize target:  0 -> 0 , else n -> 1
+    target_col = (target_col > 0).astype(int)
 
     # Train-test split (70-30, stratified)
+    # If you omit stratify,
+    # rare classes may be underrepresented or missing in the test set.
+    # sklearn.model_selection.train_test_split(*arrays, test_size=None, train_size=None, random_state=None, shuffle=True, stratify=None)
+    # If None, the value is set to the complement of the train size. If train_size is also None, it will be set to 0.25.
+    # Read More: https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.3, random_state=42, stratify=y
+        X, target_col, test_size=0.3, random_state=42, stratify=target_col
     )
 
     # Feature scaling (z-score standardization)
-    # Compute mean and std on TRAINING set only
     mean = X_train.mean(axis=0)
     std = X_train.std(axis=0)
 
@@ -271,7 +271,7 @@ def load_and_preprocess_data(csv_data):
 
     # Apply scaling
     X_train_scaled = (X_train - mean) / std
-    X_test_scaled = (X_test - mean) / std  # Use TRAINING mean/std
+    X_test_scaled = (X_test - mean) / std
 
     return X_train_scaled, X_test_scaled, y_train, y_test
 
