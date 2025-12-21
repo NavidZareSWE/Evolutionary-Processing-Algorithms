@@ -5,19 +5,21 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support, confusion_matrix
 import os
 from io import StringIO
+from config import EXPERIMENTS
 
 np.random.seed(42)
 
 
 class EvolutionStrategyLogisticRegression:
     def __init__(self, mu=30, lambda_offspring=None, lambda_reg=0.01,
-                 max_generations=100):
+                 max_generations=100, tau_multiplier=1.0, tau_prime_multiplier=1.0):
         self.mu = mu
         self.lambda_size = lambda_offspring if lambda_offspring is not None else 7 * mu
         self.lambda_reg = lambda_reg
         self.max_generations = max_generations
+        self.tau_multiplier = tau_multiplier
+        self.tau_prime_multiplier = tau_prime_multiplier
 
-        # History tracking
         self.best_loss_history = []
         self.mean_loss_history = []
         self.train_accuracy_history = []
@@ -36,8 +38,9 @@ class EvolutionStrategyLogisticRegression:
     def mutate(self, individual, n):
         theta = individual[:n]   # First n elements
         sigma = individual[n:]   # Remaining n elements
-        tau = 1 / np.sqrt(2*n)
-        tau_prime = 1 / np.sqrt(2*np.sqrt(n))
+        # Apply learning rate multipliers
+        tau = (1 / np.sqrt(2*n)) * self.tau_multiplier
+        tau_prime = (1 / np.sqrt(2*np.sqrt(n))) * self.tau_prime_multiplier
         N_global = np.random.normal(0, 1)
         N_local = np.random.normal(0, 1, size=n)
         sigma_new = sigma * np.exp(tau * N_global + tau_prime * N_local)
@@ -190,7 +193,6 @@ class EvolutionStrategyLogisticRegression:
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
         plt.savefig(f'{save_prefix}_fitness.png', dpi=300)
-        plt.show()
 
         # Plot 2: Accuracy
         plt.figure(figsize=(10, 5))
@@ -209,7 +211,6 @@ class EvolutionStrategyLogisticRegression:
         plt.grid(True, alpha=0.3)
         plt.tight_layout()
         plt.savefig(f'{save_prefix}_accuracy.png', dpi=300)
-        plt.show()
 
     def plot_confusion_matrix(self, cm, save_prefix='es_results'):
         plt.figure(figsize=(8, 6))
@@ -238,7 +239,6 @@ class EvolutionStrategyLogisticRegression:
         plt.ylabel('True Label')
         plt.tight_layout()
         plt.savefig(f'{save_prefix}_confusion_matrix.png', dpi=300)
-        plt.show()
 
 
 def load_and_preprocess_data(csv_data):
@@ -287,12 +287,11 @@ def load_csv_file(script_dir):
         'heart-disease.csv'
     ]
 
-    # Directories to search
     possible_dirs = [
-        script_dir,                              # Same directory as script
-        os.path.join(script_dir, 'Extras'),      # Extras subdirectory
-        os.path.join(script_dir, 'extras'),      # lowercase version
-        os.path.join(script_dir, 'data'),        # common data folder name
+        script_dir,
+        os.path.join(script_dir, 'Extras'),
+        os.path.join(script_dir, 'extras'),
+        os.path.join(script_dir, 'data'),
         os.path.join(script_dir, 'Data'),
     ]
 
@@ -310,7 +309,6 @@ def load_csv_file(script_dir):
                 except Exception as e:
                     print(f"[ERROR] Could not read file: {e}")
 
-    # Print what was searched if not found
     print("[NOT FOUND] Searched in:")
     for directory in possible_dirs:
         print(f"  - {directory}")
@@ -319,7 +317,6 @@ def load_csv_file(script_dir):
 
 
 def main():
-
     print("=" * 60)
     print("Evolution Strategies for Heart Disease Classification")
     print("=" * 60)
@@ -338,60 +335,75 @@ def main():
         print("folder as this Python script.")
         return
 
-    print()
-    print("=" * 60)
-    print()
-    print("Hyperparameters:")
-    print("  - mu (parents): 30")
-    print("  - lambda (offspring): 210")
-    print("  - lambda_reg (L2 regularization): 0.01")
-    print("  - max_generations: 100")
-    print("  - Selection: (mu , lambda)-ES")
-    print()
-
     # Load and preprocess data
     X_train, X_test, y_train, y_test = load_and_preprocess_data(csv_data)
 
-    print(f"Training set size: {X_train.shape[0]}")
+    print(f"\nTraining set size: {X_train.shape[0]}")
     print(f"Test set size: {X_test.shape[0]}")
     print(f"Number of features: {X_train.shape[1]}")
     print(f"Class distribution (train): {np.bincount(y_train)}")
     print(f"Class distribution (test): {np.bincount(y_test)}")
-    print()
 
-    # Initialize and train ES
-    es = EvolutionStrategyLogisticRegression(
-        mu=30,
-        lambda_offspring=210,
-        lambda_reg=0.01,
-        max_generations=100,
-    )
+    # Loop through all experiments
+    for config in EXPERIMENTS:
+        print(f"\n{'='*60}")
+        print(f"Running Experiment: {config['name']}")
+        print(f"{'='*60}")
+        print("Hyperparameters:")
+        print(f"  - mu (parents): {config['mu']}")
+        print(f"  - lambda (offspring): {config['lambda_offspring']}")
+        print(f"  - lambda_reg (L2 regularization): {config['lambda_reg']}")
+        print(f"  - max_generations: {config['max_generations']}")
 
-    print("Training Evolution Strategy...")
-    print()
-    es.fit(X_train, y_train, X_test, y_test)
+        # Print learning rate multipliers if present
+        if 'tau_multiplier' in config:
+            print(f"  - tau_multiplier: {config['tau_multiplier']}")
+            print(
+                f"  - tau_prime_multiplier: {config['tau_prime_multiplier']}")
 
-    # Evaluate on test set
-    print()
+        print(f"  - Selection: (mu, lambda)-ES")
+        print()
+
+        # Initialize ES with config values
+        es = EvolutionStrategyLogisticRegression(
+            mu=config['mu'],
+            lambda_offspring=config['lambda_offspring'],
+            lambda_reg=config['lambda_reg'],
+            max_generations=config['max_generations'],
+            tau_multiplier=config.get('tau_multiplier', 1.0),
+            tau_prime_multiplier=config.get('tau_prime_multiplier', 1.0),
+        )
+
+        print("Training Evolution Strategy...")
+        print()
+        es.fit(X_train, y_train, X_test, y_test)
+
+        # Evaluate on test set
+        print()
+        print("=" * 60)
+        print(f"Final Results on Test Set - {config['name']}")
+        print("=" * 60)
+        results = es.evaluate(X_test, y_test)
+
+        print(f"Accuracy:  {results['accuracy']:.4f}")
+        print(f"Precision: {results['precision']:.4f}")
+        print(f"Recall:    {results['recall']:.4f}")
+        print(f"F1-Score:  {results['f1_score']:.4f}")
+        print()
+        print("Confusion Matrix:")
+        print(results['confusion_matrix'])
+        print()
+
+        # Generate plots with experiment name
+        print("Generating plots...")
+        es.plot_results(save_prefix=f"{config['name']}_results")
+        es.plot_confusion_matrix(results['confusion_matrix'],
+                                 save_prefix=f"{config['name']}_results")
+        print(f"Plots saved for {config['name']}!")
+
+    print("\n" + "=" * 60)
+    print("ALL EXPERIMENTS COMPLETE!")
     print("=" * 60)
-    print("Final Results on Test Set")
-    print("=" * 60)
-    results = es.evaluate(X_test, y_test)
-
-    print(f"Accuracy:  {results['accuracy']:.4f}")
-    print(f"Precision: {results['precision']:.4f}")
-    print(f"Recall:    {results['recall']:.4f}")
-    print(f"F1-Score:  {results['f1_score']:.4f}")
-    print()
-    print("Confusion Matrix:")
-    print(results['confusion_matrix'])
-    print()
-
-    # Generate plots
-    print("Generating plots...")
-    es.plot_results()
-    es.plot_confusion_matrix(results['confusion_matrix'])
-    print("Plots saved successfully!")
 
 
 if __name__ == "__main__":
