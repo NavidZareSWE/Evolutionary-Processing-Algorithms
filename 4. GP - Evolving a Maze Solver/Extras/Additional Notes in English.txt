@@ -1,0 +1,37 @@
+Note 1:
+Hello,
+I hope everyone is doing well.
+Regarding the fourth assignment, there are two points.
+
+First, the moves must be in the leaves.
+In the assignment text it was written that the conditions must be in the leaves, which is incorrect.
+
+The second point is that some students were reaching the answer in the early generations. This is because they assumed that it is not possible to pass through walls. As a result, in many states there was only one possible action, and practically the problem becomes very simple.
+
+You must assume that at every step you can perform all four actions.
+How many walls you pass through should affect the fitness.
+That is, the algorithm itself must learn to pass through fewer walls (and possibly not pass through them at all).
+
+Good luck.
+
+Note 2:
+Hello,
+It was explained that the algorithm can choose four movements at each step.
+You are allowed to pass through walls, but it has a negative score; meaning the fitness of a chromosome that passes through more walls is worse than the fitness of a solution that passes through fewer walls.
+
+You must not explicitly tell the algorithm using if/else that it should not pass through walls.
+The algorithm moves randomly, and solutions that pass through fewer walls and do not form loops receive better fitness, and gradually the average fitness of the chromosomes improves.
+
+Note 3:
+The difference is that when you specify that you cannot pass through walls, in many cells you only have one option. At that point, the problem becomes so simple that it no longer requires an evolutionary algorithm.
+
+Note 4:
+No, in this problem you should implement the method according to what is stated in the assignment description. If you are able to, you may use your own ideas to control bloat. You are not expected to reach the exact optimal solution, but you will reach a relatively more reasonable answer in the large search space of the problem.
+
+Important clarification (based on your note):
+
+What they are mainly trying to say is that the word “wall” is somewhat misleading.
+They mean a cell that the agent is not supposed to go into, so if the agent enters that cell, it should receive a penalty.
+
+However, there is no wall in the sense of blocking movement.
+The agent can always move in all four directions (except when it is at corners or along the edges of the grid).
