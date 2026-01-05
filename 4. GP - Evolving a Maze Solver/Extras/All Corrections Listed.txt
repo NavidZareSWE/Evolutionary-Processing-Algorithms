@@ -1,0 +1,48 @@
+All Corrections for the GP Maze Solver Assignment
+1. MOVES in Leaf Nodes (NOT Conditions)
+
+PDF said: Conditions should be in leaf nodes
+Correction: MOVES (UP, DOWN, LEFT, RIGHT) must be in LEAF nodes
+Structure: Internal nodes = conditions (IF_WALL_UP, IF_GOAL_DOWN, etc.), Leaf nodes = actions
+
+
+2. Walls Don't Block Movement
+
+PDF implied: Walls block movement (traditional maze)
+Correction: Agent CAN move through walls, but receives a penalty
+Key point: "Wall" is a misnomer — it's a penalty cell, not a blocking wall
+Agent can always move in all 4 directions (except at maze boundaries)
+
+
+3. No Explicit Wall Blocking
+
+Wrong approach: Using if/else to prevent agent from entering walls
+Correction: Never explicitly tell the algorithm it can't go through walls
+The algorithm must learn to avoid walls through evolution (fitness pressure)
+
+
+4. Fitness Formula ALWAYS Applies
+
+PDF implied: F = 0 when goal is reached
+Correction: The formula F = s + 2d + 10w + 5l always applies
+When goal reached: d=0, so F = s + 10w + 5l
+F = 0 only when: optimal steps + 0 wall hits + 0 loops
+Goal is to find the best/optimal path, not just any path
+
+
+5. Remove IF_VISITED_ Functions*
+
+Not needed: IF_VISITED_UP, IF_VISITED_DOWN, IF_VISITED_LEFT, IF_VISITED_RIGHT
+Why: Loops are allowed, but penalized in fitness (5 × revisits)
+Survivor selection naturally eliminates looping solutions (worse fitness = lower survival chance)
+
+
+6. Don't Find Solution in Generation 0
+
+Constraint: Initial population should NOT contain the optimal solution
+Why: Evolution must actually work to find the solution
+Fix: Reject initial trees with fitness below a threshold (e.g., < 25)
+
+
+Summary Table
+TopicWrongCorrectLeaf nodes containConditionsMOVESWallsBlock movementAllow movement + penaltyWall avoidanceExplicit if/else blockingLearned through evolutionFitness when goal reachedF = 0F = s + 10w + 5lIF_VISITED_* functionsNeededNot needed (fitness handles loops)Generation 0Can find optimalMust NOT find optimal
