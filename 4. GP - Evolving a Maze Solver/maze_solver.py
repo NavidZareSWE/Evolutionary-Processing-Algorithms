@@ -483,10 +483,6 @@ def print_solution_details(tree, fitness, path, goal_reached):
     tree.print_tree()
 
 
-# ##############################################################################
-# MAIN
-# ##############################################################################
-
 def main():
     random.seed(42)
     np.random.seed(42)
