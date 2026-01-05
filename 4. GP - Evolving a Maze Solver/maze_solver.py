@@ -1,118 +1,15 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import copy
 import random
-
-# Consts
-POPULATION_SIZE = 200
-MAX_GENERATIONS = 100
-MAX_TREE_DEPTH_INIT = 4
-MAX_TREE_DEPTH = 8
-MAX_STEPS_PER_EPISODE = 60
-CROSSOVER_RATE = 0.9
-MUTATION_RATE = 0.1
-MAZE = [
-    [0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
-    [1, 0, 1, 0, 1, 0, 1, 0, 1, 0],
-    [1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-    [1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 1, 0, 0, 0],
-    [0, 1, 1, 1, 1, 0, 1, 1, 1, 0],
-    [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    [1, 1, 1, 0, 1, 1, 1, 1, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
-    [0, 1, 1, 1, 1, 1, 0, 0, 0, 0]
-]
-START_POS = (0, 0)
-GOAL_POS = (9, 9)
-MAZE_HEIGHT = len(MAZE)
-MAZE_WIDTH = len(MAZE[0])
-
-# ENUMS
-MOVES = {
-    'UP': (-1, 0),
-    'DOWN': (1, 0),
-    'LEFT': (0, -1),
-    'RIGHT': (0, 1)
-}
-# Terminal set (leaf nodes)
-TERMINALS = ['UP', 'DOWN', 'LEFT', 'RIGHT']
-
-# Function set
-FUNCTIONS = [
-    'IF_WALL_UP',      # If wall/penalty cell is up
-    'IF_WALL_DOWN',    # If wall/penalty cell is down
-    'IF_WALL_LEFT',    # If wall/penalty cell is left
-    'IF_WALL_RIGHT',   # If wall/penalty cell is right
-    'IF_GOAL_UP',      # If goal is in upward direction
-    'IF_GOAL_DOWN',    # If goal is in downward direction
-    'IF_GOAL_LEFT',    # If goal is in left direction
-    'IF_GOAL_RIGHT'    # If goal is in right direction
-]
-
-
-class TreeNode:
-
-    def __init__(self, value, children=None):
-        self.value = value
-        self.children = children if children else []
-
-    def is_terminal(self):
-        return self.value in TERMINALS
-
-    def is_function(self):
-        return self.value in FUNCTIONS
-
-    def depth(self):
-        if self.is_terminal():
-            return 1
-        return 1 + max(child.depth() for child in self.children)
-
-    def size(self):
-        if self.is_terminal():
-            return 1
-        return 1 + sum(child.size() for child in self.children)
-
-    def copy(self):
-        if self.is_terminal():
-            return TreeNode(self.value)
-        return TreeNode(self.value, [child.copy() for child in self.children])
-
-    def __str__(self):
-        if self.is_terminal():
-            return self.value
-        return f"({self.value} {' '.join(str(c) for c in self.children)})"
-
-
-# ##############################################################################
-# TREE GENERATION (Half-Full, Half-incomeplete)
-# ##############################################################################
-
-def generate_full_tree(max_depth, current_depth=0):
-    if current_depth >= max_depth - 1:
-        return TreeNode(random.choice(TERMINALS))
-    else:
-        func = random.choice(FUNCTIONS)
-        children = [
-            generate_full_tree(max_depth, current_depth + 1),
-            generate_full_tree(max_depth, current_depth + 1)
-        ]
-        return TreeNode(func, children)
-
-
-def generate_grow_tree(max_depth, current_depth=0):
-    if current_depth >= max_depth - 1:
-        return TreeNode(random.choice(TERMINALS))
-    else:
-        if random.random() < 0.3:  # 30% chance of early termination
-            return TreeNode(random.choice(TERMINALS))
-        else:
-            func = random.choice(FUNCTIONS)
-            children = [
-                generate_grow_tree(max_depth, current_depth + 1),
-                generate_grow_tree(max_depth, current_depth + 1)
-            ]
-            return TreeNode(func, children)
+from constants import (
+    POPULATION_SIZE, MAX_GENERATIONS, MAX_TREE_DEPTH_INIT, MAX_TREE_DEPTH,
+    CROSSOVER_RATE, MUTATION_RATE, MAX_STEPS_PER_EPISODE, MIN_FITNESS_THRESHOLD,
+    MAZE, START_POS, GOAL_POS, MAZE_HEIGHT, MAZE_WIDTH,
+    MOVES, TERMINALS, FUNCTIONS
+)
+from tree import (
+    TreeNode, generate_full_tree, generate_grow_tree, get_all_nodes
+)
+from visualizer import Visualizer
 
 
 def ramped_half_and_half(pop_size, max_depth):
@@ -120,23 +17,23 @@ def ramped_half_and_half(pop_size, max_depth):
     Initialize population: ramped half-and-half method.
     - Half: full/complete trees
     - Half: incomplete trees
-    - Reject any solution that is too good (fitness < 25) to ensure evolution matters
+    - Reject any solution that is ***too good*** (fitness < 25)
     """
     population = []
     depths = list(range(2, max_depth + 1))
     individuals_per_depth = pop_size // len(depths)
-
-    # Reject solutions better than this to not find solutions in gen_0
-    MIN_FITNESS_THRESHOLD = 25
 
     def generate_valid_tree(generator_func, depth):
         max_attempts = 50
         for _ in range(max_attempts):
             tree = generator_func(depth)
             fitness = simulate_agent(tree)
+            # You want trees that are not TOO good,
+            # My only solution to not find the goal in generetion 0
             if fitness >= MIN_FITNESS_THRESHOLD:
                 return tree
-        # If we can't find a bad enough solution, return the last one anyway
+        # If we can't find a bad enough solution
+        # return the last one anyway
         return tree
 
     for depth in depths:
@@ -156,32 +53,39 @@ def ramped_half_and_half(pop_size, max_depth):
     return population
 
 
-def is_wall(row, col):
-    if 0 <= row < MAZE_HEIGHT and 0 <= col < MAZE_WIDTH:
-        return MAZE[row][col] == 1
-    return True  # Out of bounds treated as wall
-
-
-def is_valid_position(row, col):
+# ##############################################################################
+# Utility Functions
+# ##############################################################################
+def is_within_bounds(row, col):
     return 0 <= row < MAZE_HEIGHT and 0 <= col < MAZE_WIDTH
+
+
+def is_wall(row, col):
+    if is_within_bounds(row, col):
+        return MAZE[row][col] == 1
+    return True  # Out of bounds -> treated as wall
 
 
 def manhattan_distance(pos1, pos2):
     return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
 
-def evaluate_condition(condition, agent_row, agent_col, visited):
+# ##############################################################################
+# TREE EVALUATION
+# ##############################################################################
+
+def evaluate_condition(condition, agent_row, agent_col):
     goal_row, goal_col = GOAL_POS
 
     # Wall conditions
     if condition == 'IF_WALL_UP':
-        return is_wall(agent_row - 1, agent_col) or not is_valid_position(agent_row - 1, agent_col)
+        return is_wall(agent_row - 1, agent_col)
     elif condition == 'IF_WALL_DOWN':
-        return is_wall(agent_row + 1, agent_col) or not is_valid_position(agent_row + 1, agent_col)
+        return is_wall(agent_row + 1, agent_col)
     elif condition == 'IF_WALL_LEFT':
-        return is_wall(agent_row, agent_col - 1) or not is_valid_position(agent_row, agent_col - 1)
+        return is_wall(agent_row, agent_col - 1)
     elif condition == 'IF_WALL_RIGHT':
-        return is_wall(agent_row, agent_col + 1) or not is_valid_position(agent_row, agent_col + 1)
+        return is_wall(agent_row, agent_col + 1)
 
     # Goal conditions
     elif condition == 'IF_GOAL_UP':
@@ -196,25 +100,26 @@ def evaluate_condition(condition, agent_row, agent_col, visited):
     return False
 
 
-def execute_tree(tree, agent_row, agent_col, visited):
-
+def execute_tree(tree, agent_row, agent_col):
     if tree.is_terminal():
         return tree.value
 
     condition_result = evaluate_condition(
-        tree.value, agent_row, agent_col, visited)
+        tree.value, agent_row, agent_col)
 
     if condition_result:
-        return execute_tree(tree.children[0], agent_row, agent_col, visited)
+        return execute_tree(tree.children[0], agent_row, agent_col)
     else:
-        return execute_tree(tree.children[1], agent_row, agent_col, visited)
+        return execute_tree(tree.children[1], agent_row, agent_col)
 
+
+# ##############################################################################
+# SIMULATION
+# ##############################################################################
 
 def simulate_agent(tree, return_path=False):
     """
-    Simulate agent navigation using the GP tree as controller.
-
-    IMPORTANT: As per assignment corrections:
+    IMPORTANT (assignment corrections):
     - Agent CAN move through walls (receives penalty)
     - Agent CAN move in all 4 directions at any time
     - Hitting boundary keeps agent in place but costs a step
@@ -222,11 +127,11 @@ def simulate_agent(tree, return_path=False):
     - Optimal (F=0) means: goal reached + minimum steps + 0 walls + 0 loops
 
     Returns:
-    - fitness value (lower is better)
+    - fitness value (LOWER is better)
     - optionally returns the path taken
     """
     agent_row, agent_col = START_POS
-    visited = {(agent_row, agent_col)}
+    # visited = []
     path = [(agent_row, agent_col)]
 
     steps = 0
@@ -235,13 +140,11 @@ def simulate_agent(tree, return_path=False):
     goal_reached = False
 
     for _ in range(MAX_STEPS_PER_EPISODE):
-        # Check if goal reached
         if (agent_row, agent_col) == GOAL_POS:
             goal_reached = True
             break
 
-        # Get movement action from tree
-        action = execute_tree(tree, agent_row, agent_col, visited)
+        action = execute_tree(tree, agent_row, agent_col)
 
         # Calculate new position
         dr, dc = MOVES[action]
@@ -251,22 +154,21 @@ def simulate_agent(tree, return_path=False):
         steps += 1
 
         # Check if move is within bounds
-        if is_valid_position(new_row, new_col):
-            # Check if moving into a wall (penalty cell)
+        if is_within_bounds(new_row, new_col):
             if is_wall(new_row, new_col):
                 wall_hits += 1
 
             # Check for revisit (loop)
-            if (new_row, new_col) in visited:
-                revisits += 1
+            # if (new_row, new_col) in visited:
+            #     revisits += 1
 
-            # Move agent (always allowed as per corrections)
             agent_row, agent_col = new_row, new_col
-            visited.add((agent_row, agent_col))
+            # visited.add((agent_row, agent_col))
             path.append((agent_row, agent_col))
         else:
             # Out of bounds - agent stays in place, but still counts as a step
             # This implicitly penalizes boundary hits through wasted steps
+            wall_hits += 1
             pass
 
     # Calculate fitness: F = s + 2d + 10w + 5l (ALWAYS applied)
@@ -280,20 +182,25 @@ def simulate_agent(tree, return_path=False):
     return fitness
 
 
+# ##############################################################################
+# SELECTION OPERATORS
+# ##############################################################################
+
 def fitness_proportional_selection(population, fitnesses):
     # Convert to maximization problem (invert fitnesses)
     max_fitness = max(fitnesses) + 1  # +1 to avoid division by zero
     inverted = [max_fitness - f for f in fitnesses]
 
     total = sum(inverted)
+    # All have the same fitness
     if total == 0:
         return random.choice(population)
 
     # Roulette wheel selection
     pick = random.uniform(0, total)
     current = 0
-    for i, inv_fit in enumerate(inverted):
-        current += inv_fit
+    for i, indiv_fit in enumerate(inverted):
+        current += indiv_fit
         if current >= pick:
             return population[i].copy()
 
@@ -301,37 +208,32 @@ def fitness_proportional_selection(population, fitnesses):
 
 
 def tournament_selection(population, fitnesses, tournament_size=3):
-    indices = random.sample(range(len(population)), tournament_size)
-    best_idx = min(indices, key=lambda i: fitnesses[i])
-    return population[best_idx].copy()
+    all_indices = np.arange(len(population))
 
-
-def get_all_nodes(tree, include_root=True):
-
-    nodes = []
-
-    def collect(node, parent, child_index):
-        nodes.append((node, parent, child_index))
-        for i, child in enumerate(node.children):
-            collect(child, node, i)
-
-    if include_root:
-        collect(tree, None, -1)
+    if len(all_indices) < tournament_size:
+        selected_indices = all_indices
     else:
-        for i, child in enumerate(tree.children):
-            collect(child, tree, i)
+        selected_indices = np.random.choice(
+            all_indices, size=tournament_size, replace=False)
 
-    return nodes
+    best_fitness = float('inf')  # Start high since lower is better
+    best_indiv = None
+
+    for idx in selected_indices:
+        indiv = population[idx]
+        fitness = fitnesses[idx]
+        if fitness < best_fitness:  # Lower is better in maze solver
+            best_fitness = fitness
+            best_indiv = indiv
+
+    return best_indiv.copy()
 
 
-def select_random_node(tree, include_root=True):
-
-    nodes = get_all_nodes(tree, include_root)
-    return random.choice(nodes)
-
+# ##############################################################################
+# GENETIC OPERATORS
+# ##############################################################################
 
 def subtree_crossover(parent1, parent2):
-
     offspring1 = parent1.copy()
     offspring2 = parent2.copy()
 
@@ -339,15 +241,17 @@ def subtree_crossover(parent1, parent2):
     nodes1 = get_all_nodes(offspring1, include_root=False)
     nodes2 = get_all_nodes(offspring2, include_root=False)
 
+    # Prevents crossover on empty trees
     if not nodes1 or not nodes2:
         return offspring1, offspring2
 
     node1, parent1_node, idx1 = random.choice(nodes1)
     node2, parent2_node, idx2 = random.choice(nodes2)
 
-    # Check depth constraints
-    depth1 = node2.depth() + (offspring1.depth() - node1.depth())
-    depth2 = node1.depth() + (offspring2.depth() - node2.depth())
+    # Compute new tree depth:
+    # inserted subtree depth + (original tree depth - replaced subtree depth)
+    depth1 = node2.subtree_depth() + (offspring1.subtree_depth() - node1.subtree_depth())
+    depth2 = node1.subtree_depth() + (offspring2.subtree_depth() - node2.subtree_depth())
 
     if depth1 <= MAX_TREE_DEPTH and depth2 <= MAX_TREE_DEPTH:
         if parent1_node and parent2_node:
@@ -360,18 +264,18 @@ def subtree_crossover(parent1, parent2):
 
 def subtree_mutation(tree):
 
-    mutant = tree.copy()
-    nodes = get_all_nodes(mutant, include_root=False)
+    to_mutate = tree.copy()
+    nodes = get_all_nodes(to_mutate, include_root=False)
 
     if not nodes:
-        return mutant
+        return to_mutate
 
-    # Select random node to replace
     node, parent, idx = random.choice(nodes)
 
+    # Node being replaced is not Root
     if parent is not None:
-        # Generate new subtree with limited depth
-        max_new_depth = MAX_TREE_DEPTH - (mutant.depth() - node.depth())
+        max_new_depth = MAX_TREE_DEPTH - \
+            (to_mutate.subtree_depth() - node.subtree_depth())
         max_new_depth = max(2, min(max_new_depth, 4))
 
         if random.random() < 0.5:
@@ -381,32 +285,33 @@ def subtree_mutation(tree):
 
         parent.children[idx] = new_subtree
 
-    return mutant
+    return to_mutate
 
 
 def point_mutation(tree):
-
-    mutant = tree.copy()
-    nodes = get_all_nodes(mutant)
+    to_mutate = tree.copy()
+    nodes = get_all_nodes(to_mutate)
 
     if not nodes:
-        return mutant
+        return to_mutate
 
-    node, parent, idx = random.choice(nodes)
+    node, __, ___ = random.choice(nodes)
 
     if node.is_terminal():
-        # Change to different terminal
         other_terminals = [t for t in TERMINALS if t != node.value]
         if other_terminals:
             node.value = random.choice(other_terminals)
     else:
-        # Change to different function
         other_functions = [f for f in FUNCTIONS if f != node.value]
         if other_functions:
             node.value = random.choice(other_functions)
 
-    return mutant
+    return to_mutate
 
+
+# ##############################################################################
+# MAIN GP ALGORITHM
+# ##############################################################################
 
 def run_gp():
     """
@@ -525,85 +430,9 @@ def run_gp():
     return best_individual_ever, best_fitness_ever, best_fitness_history, avg_fitness_history, suboptimal_solutions
 
 
-# =============================================================================
-# VISUALIZATION
-# =============================================================================
-
-def visualize_maze_with_path(path, title="Maze Solution"):
-
-    fig, ax = plt.subplots(figsize=(10, 10))
-
-    # Create color matrix for maze
-    maze_colors = np.array(MAZE, dtype=float)
-
-    # Draw maze
-    ax.imshow(maze_colors, cmap='binary', origin='upper')
-
-    for i in range(MAZE_HEIGHT + 1):
-        ax.axhline(i - 0.5, color='gray', linewidth=0.5)
-    for j in range(MAZE_WIDTH + 1):
-        ax.axvline(j - 0.5, color='gray', linewidth=0.5)
-
-    if path and len(path) > 1:
-        path_rows = [p[0] for p in path]
-        path_cols = [p[1] for p in path]
-        ax.plot(path_cols, path_rows, 'b-',
-                linewidth=2, alpha=0.7, label='Path')
-
-        for i, (r, c) in enumerate(path):
-            if i == 0:
-                ax.plot(c, r, 'go', markersize=15, label='Start')
-            elif (r, c) == GOAL_POS:
-                ax.plot(c, r, 'r*', markersize=20, label='Goal')
-            else:
-                ax.plot(c, r, 'b.', markersize=8)
-
-    ax.plot(START_POS[1], START_POS[0], 'go', markersize=15)
-    ax.plot(GOAL_POS[1], GOAL_POS[0], 'r*', markersize=20)
-
-    ax.set_xlim(-0.5, MAZE_WIDTH - 0.5)
-    ax.set_ylim(MAZE_HEIGHT - 0.5, -0.5)
-    ax.set_xlabel('Column')
-    ax.set_ylabel('Row')
-    ax.set_title(title)
-    ax.legend(loc='upper right')
-
-    for i in range(MAZE_HEIGHT):
-        for j in range(MAZE_WIDTH):
-            if MAZE[i][j] == 0:
-                ax.text(j, i, f'{i},{j}', ha='center',
-                        va='center', fontsize=6, alpha=0.5)
-
-    plt.tight_layout()
-    return fig
-
-
-def plot_fitness_history(best_history, avg_history):
-
-    fig, ax = plt.subplots(figsize=(12, 6))
-
-    generations = range(len(best_history))
-
-    ax.plot(generations, best_history, 'b-', linewidth=2, label='Best Fitness')
-    ax.plot(generations, avg_history, 'r--',
-            linewidth=2, label='Average Fitness')
-
-    ax.set_xlabel('Generation', fontsize=12)
-    ax.set_ylabel('Fitness (lower is better)', fontsize=12)
-    ax.set_title('Fitness Progression Over Generations', fontsize=14)
-    ax.legend(fontsize=10)
-    ax.grid(True, alpha=0.3)
-
-    min_fitness = min(best_history)
-    min_gen = best_history.index(min_fitness)
-    ax.annotate(f'Best: {min_fitness:.1f}', xy=(min_gen, min_fitness),
-                xytext=(min_gen + 5, min_fitness + 20),
-                arrowprops=dict(arrowstyle='->', color='blue'),
-                fontsize=10, color='blue')
-
-    plt.tight_layout()
-    return fig
-
+# ##############################################################################
+# OUTPUT HELPERS
+# ##############################################################################
 
 def print_solution_details(tree, fitness, path, goal_reached):
 
@@ -651,21 +480,12 @@ def print_solution_details(tree, fitness, path, goal_reached):
         print("  " + " -> ".join(moves[i:i+10]))
 
     print("\nTree Structure:")
-    print_tree(tree)
+    tree.print_tree()
 
 
-def print_tree(node, indent=0):
-    prefix = "  " * indent
-    if node.is_terminal():
-        print(f"{prefix}+-- {node.value}")
-    else:
-        print(f"{prefix}+-- {node.value}")
-        if len(node.children) >= 2:
-            print(f"{prefix}|   [IF TRUE]:")
-            print_tree(node.children[0], indent + 2)
-            print(f"{prefix}|   [IF FALSE]:")
-            print_tree(node.children[1], indent + 2)
-
+# ##############################################################################
+# MAIN
+# ##############################################################################
 
 def main():
     random.seed(42)
@@ -678,10 +498,6 @@ def main():
     for i, row in enumerate(MAZE):
         print(f"Row {i}: {row}")
 
-    print("\n" + "=" * 60)
-    print("FINDING OPTIMAL PATH (BFS) FOR COMPARISON")
-    print("=" * 60)
-
     best_tree, best_fitness, best_history, avg_history, suboptimal = run_gp()
 
     fitness, path, goal_reached = simulate_agent(best_tree, return_path=True)
@@ -691,17 +507,12 @@ def main():
     print("\nGenerating visualizations...")
 
     # Plot fitness history
-    fig1 = plot_fitness_history(best_history, avg_history)
-    fig1.savefig('fitness_progression.png',
-                 dpi=150, bbox_inches='tight')
-    print("Saved: fitness_progression.png")
+    fig1 = Visualizer.plot_fitness_history(
+        best_history, avg_history, 'fitness_progression.png')
 
     # Visualize best solution path
-    fig2 = visualize_maze_with_path(
-        path, f"GP Solution - OPTIMAL (Fitness: {fitness})")
-    fig2.savefig('solution_path.png',
-                 dpi=150, bbox_inches='tight')
-    print("Saved: solution_path.png")
+    fig2 = Visualizer.visualize_maze_with_path(
+        path, f"GP Solution - OPTIMAL (Fitness: {fitness})", 'solution_path.png')
 
     # Show 2 suboptimal solutions
     if len(suboptimal) >= 2:
@@ -712,10 +523,8 @@ def main():
         _, _, sub1_reached = simulate_agent(sub1_tree, return_path=True)
         print_solution_details(sub1_tree, sub1_fit, sub1_path, sub1_reached)
 
-        fig3 = visualize_maze_with_path(
-            sub1_path, f"Suboptimal #1 (Fitness: {sub1_fit})")
-        fig3.savefig('suboptimal_path_1.png', dpi=150, bbox_inches='tight')
-        print("Saved: suboptimal_path_1.png")
+        fig3 = Visualizer.visualize_maze_with_path(
+            sub1_path, f"Suboptimal #1 (Fitness: {sub1_fit})", 'suboptimal_path_1.png')
 
         print("\n" + "=" * 60)
         print("SUBOPTIMAL SOLUTION #2")
@@ -724,14 +533,12 @@ def main():
         _, _, sub2_reached = simulate_agent(sub2_tree, return_path=True)
         print_solution_details(sub2_tree, sub2_fit, sub2_path, sub2_reached)
 
-        fig4 = visualize_maze_with_path(
-            sub2_path, f"Suboptimal #2 (Fitness: {sub2_fit})")
-        fig4.savefig('suboptimal_path_2.png', dpi=150, bbox_inches='tight')
-        print("Saved: suboptimal_path_2.png")
+        fig4 = Visualizer.visualize_maze_with_path(
+            sub2_path, f"Suboptimal #2 (Fitness: {sub2_fit})", 'suboptimal_path_2.png')
     else:
         print("\nNot enough suboptimal solutions found to display.")
 
-    plt.close('all')
+    Visualizer.close_all_figures()
 
     print("\n" + "=" * 60)
     print("COMPLETE!")
