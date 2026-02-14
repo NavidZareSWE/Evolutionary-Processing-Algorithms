@@ -1,5 +1,5 @@
-![Evolutionary Processing Algorithms](https://res.cloudinary.com/dyjew8iji/image/upload/v1771065347/Evolutionary_Processing_Algorithms_bxxjui.webp)
 # Evolutionary Processing Algorithms
+![Evolutionary Processing Algorithms](https://res.cloudinary.com/dyjew8iji/image/upload/v1771065347/Evolutionary_Processing_Algorithms_bxxjui.webp)
 
 ## Overview
 This repository serves as a collection of materials from the "Evolutionary Processing" course, which delves into evolutionary algorithms including Genetic Algorithms (GA). It includes code implementations, assignments, and project examples demonstrating how these algorithms mimic natural evolution to solve complex optimization problems.
