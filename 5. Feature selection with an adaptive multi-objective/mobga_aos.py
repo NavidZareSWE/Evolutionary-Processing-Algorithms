@@ -25,7 +25,7 @@ def load_dataset(filepath):
         y = data[:, -1].astype(int)
         return X, y
     except Exception as e:
-        raise ValueError(f"Error loading dataset: {e}")
+        raise ValueError("Error loading dataset: {}".format(e))
 
 
 def normalize_data(X):
@@ -46,6 +46,45 @@ def train_test_split(X, y, train_ratio=0.7, seed=42):
     train_idx = indices[:train_size]
     test_idx = indices[train_size:]
     return X[train_idx], y[train_idx], X[test_idx], y[test_idx]
+
+
+def format_pareto_front(pf):
+    """
+    Format Pareto front for clean console output without numpy type wrappers.
+    
+    Parameters:
+    -----------
+    pf : list - List of [error, n_features] pairs
+    
+    Returns:
+    --------
+    str - Formatted string representation
+    """
+    if not pf:
+        return "[]"
+    formatted = []
+    for point in pf:
+        error = float(point[0])
+        n_feat = int(point[1])
+        formatted.append("[{:.2f}, {}]".format(error, n_feat))
+    return "[" + ", ".join(formatted) + "]"
+
+
+def convert_pareto_front(pf):
+    """
+    Convert Pareto front to native Python types.
+    
+    Parameters:
+    -----------
+    pf : list - List of [error, n_features] pairs
+    
+    Returns:
+    --------
+    list - List with native Python types
+    """
+    if not pf:
+        return []
+    return [[float(point[0]), int(point[1])] for point in pf]
 
 
 # ============================================================================
@@ -446,9 +485,10 @@ def merge_pareto_fronts(fronts_list):
                 is_dominated = True
                 break
         if not is_dominated:
-            # Avoid duplicates
-            if point not in non_dominated:
-                non_dominated.append(point)
+            # Avoid duplicates - convert to native types for comparison
+            point_native = [float(point[0]), int(point[1])]
+            if point_native not in non_dominated:
+                non_dominated.append(point_native)
 
     return sorted(non_dominated, key=lambda x: x[0])
 
@@ -668,9 +708,10 @@ class MOBGA_AOS:
         return new_population, new_objectives
 
     def get_pareto_front(self, population, objectives):
-        """Extract the first Pareto front."""
+        """Extract the first Pareto front with native Python types."""
         fronts = fast_non_dominated_sort(population, objectives)
-        pareto_front = [list(objectives[idx]) for idx in fronts[0]]
+        pareto_front = [[float(objectives[idx][0]), int(objectives[idx][1])] 
+                        for idx in fronts[0]]
         return pareto_front
 
     def run(self, seed=42):
@@ -691,7 +732,7 @@ class MOBGA_AOS:
         reference_point = [100.0, float(self.n_features + 1)]
 
         if self.verbose:
-            print(f"Initial FEs: {self.n_fes}, Target: {self.max_fes}")
+            print("Initial FEs: {}, Target: {}".format(self.n_fes, self.max_fes))
 
         while self.n_fes < self.max_fes:
             offspring_population = []
@@ -772,8 +813,8 @@ class MOBGA_AOS:
             self.generation += 1
 
             if self.verbose and self.generation % 10 == 0:
-                print(
-                    f"Gen {self.generation}, FEs: {self.n_fes}, PF size: {len(pareto_front)}, HV: {hv:.4f}")
+                print("Gen {}, FEs: {}, PF size: {}, HV: {:.4f}".format(
+                    self.generation, self.n_fes, len(pareto_front), hv))
 
         # Extract final Pareto front
         final_pareto_front = self.get_pareto_front(population, objectives)
@@ -797,25 +838,25 @@ def plot_pareto_front(all_fronts, true_pf, dataset_name, n_features, baseline_er
         # Plot individual run fronts
         for i, front in enumerate(all_fronts):
             if front:
-                errors = [p[0] for p in front]
-                features = [p[1] for p in front]
+                errors = [float(p[0]) for p in front]
+                features = [int(p[1]) for p in front]
                 ax.scatter(features, errors, c=colors[i % len(colors)], alpha=0.6,
-                           s=50, label=f'Run {i+1}')
+                           s=50, label='Run {}'.format(i+1))
 
         # Plot true Pareto front
         if true_pf:
-            true_errors = [p[0] for p in true_pf]
-            true_features = [p[1] for p in true_pf]
+            true_errors = [float(p[0]) for p in true_pf]
+            true_features = [int(p[1]) for p in true_pf]
             ax.plot(true_features, true_errors, 'k-', linewidth=2, marker='s',
                     markersize=8, label='Combined PF')
 
         # Plot baseline
         ax.axhline(y=baseline_error, color='r', linestyle='--',
-                   label=f'All Features ({n_features}): {baseline_error:.2f}%')
+                   label='All Features ({}): {:.2f}%'.format(n_features, baseline_error))
 
         ax.set_xlabel('Number of Selected Features', fontsize=12)
         ax.set_ylabel('Classification Error (%)', fontsize=12)
-        ax.set_title(f'MOBGA-AOS Pareto Front: {dataset_name}', fontsize=14)
+        ax.set_title('MOBGA-AOS Pareto Front: {}'.format(dataset_name), fontsize=14)
         ax.legend(loc='upper right')
         ax.grid(True, alpha=0.3)
 
@@ -843,11 +884,11 @@ def plot_hv_convergence(hv_histories, dataset_name, save_path=None):
         for i, hv_history in enumerate(hv_histories):
             generations = range(1, len(hv_history) + 1)
             ax.plot(generations, hv_history, c=colors[i % len(colors)],
-                    alpha=0.7, label=f'Run {i+1}')
+                    alpha=0.7, label='Run {}'.format(i+1))
 
         ax.set_xlabel('Generation', fontsize=12)
         ax.set_ylabel('Hypervolume', fontsize=12)
-        ax.set_title(f'Hypervolume Convergence: {dataset_name}', fontsize=14)
+        ax.set_title('Hypervolume Convergence: {}'.format(dataset_name), fontsize=14)
         ax.legend()
         ax.grid(True, alpha=0.3)
 
@@ -880,8 +921,7 @@ def plot_osp_evolution(osp_histories, dataset_name, save_path=None):
 
         ax.set_xlabel('Generation', fontsize=12)
         ax.set_ylabel('Selection Probability', fontsize=12)
-        ax.set_title(
-            f'Operator Selection Probability Evolution: {dataset_name}', fontsize=14)
+        ax.set_title('Operator Selection Probability Evolution: {}'.format(dataset_name), fontsize=14)
         ax.legend(loc='upper right')
         ax.grid(True, alpha=0.3)
         ax.set_ylim(0, 1)
@@ -923,10 +963,10 @@ if __name__ == "__main__":
     all_results = {}
 
     for ds_id, (ds_file, ds_name, max_fes) in DATASETS.items():
-        full_name = f"{ds_id}_{ds_name}"
-        print(f"\n{'='*60}")
-        print(f"Processing: {full_name}")
-        print(f"{'='*60}")
+        full_name = "{}_{}".format(ds_id, ds_name)
+        print("\n" + "=" * 60)
+        print("Processing: {}".format(full_name))
+        print("=" * 60)
 
         try:
             # Load dataset
@@ -935,8 +975,8 @@ if __name__ == "__main__":
             n_samples = X.shape[0]
             n_classes = len(np.unique(y))
 
-            print(
-                f"Samples: {n_samples}, Features: {n_features}, Classes: {n_classes}")
+            print("Samples: {}, Features: {}, Classes: {}".format(
+                n_samples, n_features, n_classes))
 
             # Run experiments (3 independent runs as per paper)
             all_fronts = []
@@ -956,9 +996,8 @@ if __name__ == "__main__":
                 baseline_error = compute_all_features_error(X_train, y_train)
                 baselines.append(baseline_error)
 
-                print(f"\nRun {run + 1}/3 (seed={seed})")
-                print(
-                    f"  Baseline error (all features): {baseline_error:.2f}%")
+                print("\nRun {}/3 (seed={})".format(run + 1, seed))
+                print("  Baseline error (all features): {:.2f}%".format(baseline_error))
 
                 # Initialize and run MOBGA-AOS
                 mobga = MOBGA_AOS(
@@ -980,8 +1019,8 @@ if __name__ == "__main__":
                 all_osp_histories.append(mobga.osp_history)
                 run_times.append(run_time)
 
-                print(f"  Pareto front size: {len(pareto_front)}")
-                print(f"  Run time: {run_time:.2f}s")
+                print("  Pareto front size: {}".format(len(pareto_front)))
+                print("  Run time: {:.2f}s".format(run_time))
 
             # Compute combined true Pareto front
             true_pf = merge_pareto_fronts(all_fronts)
@@ -993,48 +1032,51 @@ if __name__ == "__main__":
             hv_values = [compute_hypervolume_2d(
                 front, reference_point) for front in all_fronts]
 
-            mean_baseline = np.mean(baselines)
+            mean_baseline = float(np.mean(baselines))
+            igd_mean = float(np.mean(igd_values))
+            igd_std = float(np.std(igd_values))
+            hv_mean = float(np.mean(hv_values))
+            hv_std = float(np.std(hv_values))
 
-            print(f"\nResults for {full_name}:")
-            print(
-                f"  IGD: {np.mean(igd_values):.6f} ± {np.std(igd_values):.6f}")
-            print(f"  HV:  {np.mean(hv_values):.4f} ± {np.std(hv_values):.4f}")
-            print(f"  Mean baseline error: {mean_baseline:.2f}%")
-            print(f"  Combined PF: {true_pf}")
+            print("\nResults for {}:".format(full_name))
+            print("  IGD: {:.6f} +/- {:.6f}".format(igd_mean, igd_std))
+            print("  HV:  {:.4f} +/- {:.4f}".format(hv_mean, hv_std))
+            print("  Mean baseline error: {:.2f}%".format(mean_baseline))
+            print("  Combined PF: {}".format(format_pareto_front(true_pf)))
 
             # Generate plots
             plot_pareto_front(all_fronts, true_pf, full_name, n_features,
-                              mean_baseline, f'results/pareto_{ds_id}.png')
+                              mean_baseline, 'results/pareto_{}.png'.format(ds_id))
             plot_hv_convergence(all_hv_histories, full_name,
-                                f'results/hv_{ds_id}.png')
+                                'results/hv_{}.png'.format(ds_id))
             plot_osp_evolution(all_osp_histories, full_name,
-                               f'results/osp_{ds_id}.png')
+                               'results/osp_{}.png'.format(ds_id))
 
-            # Store results
+            # Store results with native Python types
             all_results[ds_id] = {
                 'dataset': full_name,
-                'n_features': n_features,
-                'n_samples': n_samples,
-                'n_classes': n_classes,
-                'max_fes': max_fes,
-                'igd_mean': float(np.mean(igd_values)),
-                'igd_std': float(np.std(igd_values)),
-                'hv_mean': float(np.mean(hv_values)),
-                'hv_std': float(np.std(hv_values)),
-                'baseline_error': float(mean_baseline),
-                'true_pareto_front': true_pf,
-                'run_times': run_times,
+                'n_features': int(n_features),
+                'n_samples': int(n_samples),
+                'n_classes': int(n_classes),
+                'max_fes': int(max_fes),
+                'igd_mean': igd_mean,
+                'igd_std': igd_std,
+                'hv_mean': hv_mean,
+                'hv_std': hv_std,
+                'baseline_error': mean_baseline,
+                'true_pareto_front': convert_pareto_front(true_pf),
+                'run_times': [float(t) for t in run_times],
             }
 
         except Exception as e:
-            print(f"Error processing {full_name}: {e}")
+            print("Error processing {}: {}".format(full_name, e))
             continue
 
     # Save all results
-    with open('results/all_results.json', 'w') as f:
+    with open('results/all_results.json', 'w', encoding='utf-8') as f:
         json.dump(all_results, f, indent=2)
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("All experiments completed!")
     print("Results saved to 'results/' directory")
-    print("="*60)
+    print("=" * 60)

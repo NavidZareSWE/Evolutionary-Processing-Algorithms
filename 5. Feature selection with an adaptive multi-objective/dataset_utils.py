@@ -71,7 +71,7 @@ def extract_datasets(zip_path='Datasets.zip', output_dir='.'):
     list - List of extracted file paths
     """
     if not os.path.exists(zip_path):
-        print(f"Error: {zip_path} not found")
+        print("Error: {} not found".format(zip_path))
         return []
     
     extracted_files = []
@@ -81,7 +81,7 @@ def extract_datasets(zip_path='Datasets.zip', output_dir='.'):
             if file_info.filename.endswith('.csv'):
                 zip_ref.extract(file_info, output_dir)
                 extracted_files.append(os.path.join(output_dir, file_info.filename))
-                print(f"Extracted: {file_info.filename}")
+                print("Extracted: {}".format(file_info.filename))
     
     return extracted_files
 
@@ -114,7 +114,7 @@ def load_dataset(filepath):
         return X, y
         
     except Exception as e:
-        raise ValueError(f"Error loading {filepath}: {e}")
+        raise ValueError("Error loading {}: {}".format(filepath, e))
 
 
 def validate_dataset(filepath, expected_info=None):
@@ -151,9 +151,11 @@ def validate_dataset(filepath, expected_info=None):
         # Compare with expected info if provided
         if expected_info:
             if expected_info.get('n_features') and n_features != expected_info['n_features']:
-                results['warning'] = f"Expected {expected_info['n_features']} features, got {n_features}"
+                results['warning'] = "Expected {} features, got {}".format(
+                    expected_info['n_features'], n_features)
             if expected_info.get('n_classes') and n_classes != expected_info['n_classes']:
-                results['warning'] = f"Expected {expected_info['n_classes']} classes, got {n_classes}"
+                results['warning'] = "Expected {} classes, got {}".format(
+                    expected_info['n_classes'], n_classes)
         
         return results
         
@@ -192,7 +194,7 @@ def normalize_data(X, method='minmax'):
         return (X - mean) / std
     
     else:
-        raise ValueError(f"Unknown normalization method: {method}")
+        raise ValueError("Unknown normalization method: {}".format(method))
 
 
 def train_test_split(X, y, train_ratio=0.7, seed=42, stratified=False):
@@ -252,17 +254,21 @@ def get_dataset_stats(X, y):
     --------
     dict - Dataset statistics
     """
+    # Convert class counts to native Python types
+    unique, counts = np.unique(y, return_counts=True)
+    class_counts = {int(k): int(v) for k, v in zip(unique, counts)}
+    
     return {
-        'n_samples': X.shape[0],
-        'n_features': X.shape[1],
+        'n_samples': int(X.shape[0]),
+        'n_features': int(X.shape[1]),
         'n_classes': len(np.unique(y)),
-        'class_counts': dict(zip(*np.unique(y, return_counts=True))),
-        'feature_means': X.mean(axis=0).tolist(),
-        'feature_stds': X.std(axis=0).tolist(),
-        'feature_mins': X.min(axis=0).tolist(),
-        'feature_maxs': X.max(axis=0).tolist(),
-        'has_missing': np.isnan(X).any(),
-        'sparsity': (X == 0).mean(),
+        'class_counts': class_counts,
+        'feature_means': [float(x) for x in X.mean(axis=0)],
+        'feature_stds': [float(x) for x in X.std(axis=0)],
+        'feature_mins': [float(x) for x in X.min(axis=0)],
+        'feature_maxs': [float(x) for x in X.max(axis=0)],
+        'has_missing': bool(np.isnan(X).any()),
+        'sparsity': float((X == 0).mean()),
     }
 
 
@@ -281,26 +287,28 @@ def print_dataset_summary(filepath):
         basename = os.path.basename(filepath)
         ds_id = basename.replace('.csv', '')
         
-        print(f"\n{'='*50}")
-        print(f"Dataset: {ds_id}")
-        print(f"{'='*50}")
-        print(f"Samples:  {stats['n_samples']}")
-        print(f"Features: {stats['n_features']}")
-        print(f"Classes:  {stats['n_classes']}")
-        print(f"Class distribution: {stats['class_counts']}")
-        print(f"Missing values: {stats['has_missing']}")
-        print(f"Sparsity: {stats['sparsity']:.2%}")
-        print(f"Feature range: [{min(stats['feature_mins']):.2f}, {max(stats['feature_maxs']):.2f}]")
+        print("\n" + "=" * 50)
+        print("Dataset: {}".format(ds_id))
+        print("=" * 50)
+        print("Samples:  {}".format(stats['n_samples']))
+        print("Features: {}".format(stats['n_features']))
+        print("Classes:  {}".format(stats['n_classes']))
+        print("Class distribution: {}".format(stats['class_counts']))
+        print("Missing values: {}".format(stats['has_missing']))
+        print("Sparsity: {:.2%}".format(stats['sparsity']))
+        print("Feature range: [{:.2f}, {:.2f}]".format(
+            min(stats['feature_mins']), max(stats['feature_maxs'])))
         
         # Check against expected info
         if ds_id in DATASET_INFO:
             info = DATASET_INFO[ds_id]
-            print(f"\nExpected: {info['n_features']} features, {info['n_classes']} classes")
+            print("\nExpected: {} features, {} classes".format(
+                info['n_features'], info['n_classes']))
             if stats['n_features'] != info['n_features']:
-                print(f"WARNING: Feature count mismatch!")
+                print("WARNING: Feature count mismatch!")
         
     except Exception as e:
-        print(f"Error loading {filepath}: {e}")
+        print("Error loading {}: {}".format(filepath, e))
 
 
 def prepare_all_datasets(data_dir='.', zip_path='Datasets.zip'):
@@ -323,22 +331,23 @@ def prepare_all_datasets(data_dir='.', zip_path='Datasets.zip'):
     missing = [f for f in expected_files if not os.path.exists(os.path.join(data_dir, f))]
     
     if missing and os.path.exists(zip_path):
-        print(f"Extracting datasets from {zip_path}...")
+        print("Extracting datasets from {}...".format(zip_path))
         extract_datasets(zip_path, data_dir)
     
     # Load each dataset
     for ds_id in ['DS02', 'DS04', 'DS05', 'DS07', 'DS08', 'DS10']:
-        filepath = os.path.join(data_dir, f'{ds_id}.csv')
+        filepath = os.path.join(data_dir, '{}.csv'.format(ds_id))
         
         if os.path.exists(filepath):
             try:
                 X, y = load_dataset(filepath)
                 datasets[ds_id] = (X, y)
-                print(f"Loaded {ds_id}: {X.shape[0]} samples, {X.shape[1]} features")
+                print("Loaded {}: {} samples, {} features".format(
+                    ds_id, X.shape[0], X.shape[1]))
             except Exception as e:
-                print(f"Failed to load {ds_id}: {e}")
+                print("Failed to load {}: {}".format(ds_id, e))
         else:
-            print(f"File not found: {filepath}")
+            print("File not found: {}".format(filepath))
     
     return datasets
 
@@ -350,10 +359,13 @@ if __name__ == "__main__":
     # Print expected dataset information
     print("Expected Dataset Specifications:")
     print("-" * 70)
-    print(f"{'ID':<8} {'Name':<30} {'Features':<10} {'Classes':<10} {'Instances':<10}")
+    print("{:<8} {:<30} {:<10} {:<10} {:<10}".format(
+        'ID', 'Name', 'Features', 'Classes', 'Instances'))
     print("-" * 70)
     for ds_id, info in DATASET_INFO.items():
-        print(f"{ds_id:<8} {info['name']:<30} {info['n_features']:<10} {info['n_classes']:<10} {info['n_instances']:<10}")
+        print("{:<8} {:<30} {:<10} {:<10} {:<10}".format(
+            ds_id, info['name'], info['n_features'], 
+            info['n_classes'], info['n_instances']))
     
     print("\n\nAttempting to load datasets...")
     
@@ -361,11 +373,11 @@ if __name__ == "__main__":
     datasets = prepare_all_datasets()
     
     if datasets:
-        print(f"\nSuccessfully loaded {len(datasets)} datasets")
+        print("\nSuccessfully loaded {} datasets".format(len(datasets)))
         
         # Print detailed summary for each
         for ds_id, (X, y) in datasets.items():
-            print_dataset_summary(f"{ds_id}.csv")
+            print_dataset_summary("{}.csv".format(ds_id))
     else:
         print("\nNo datasets found. Please ensure Datasets.zip is in the current directory.")
         print("Or manually place DS02.csv, DS04.csv, DS05.csv, DS07.csv, DS08.csv, DS10.csv")

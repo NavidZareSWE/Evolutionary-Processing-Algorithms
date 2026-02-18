@@ -15,9 +15,55 @@ from datetime import datetime
 from mobga_aos import (
     MOBGA_AOS, load_dataset, train_test_split,
     compute_all_features_error, merge_pareto_fronts,
-    compute_igd, compute_hypervolume_2d,
-    plot_pareto_front, plot_hv_convergence, plot_osp_evolution
+    compute_igd, compute_hypervolume_2d
 )
+
+# Import plotting functions from dedicated module
+from plots import (
+    HAS_MATPLOTLIB,
+    plot_pareto_front,
+    plot_hv_convergence,
+    plot_osp_evolution
+)
+
+
+def format_pareto_front(pf):
+    """
+    Format Pareto front for clean console output without numpy type wrappers.
+    
+    Parameters:
+    -----------
+    pf : list - List of [error, n_features] pairs
+    
+    Returns:
+    --------
+    str - Formatted string representation
+    """
+    if not pf:
+        return "[]"
+    formatted = []
+    for point in pf:
+        error = float(point[0])
+        n_feat = int(point[1])
+        formatted.append("[{:.4f}, {}]".format(error, n_feat))
+    return "[" + ", ".join(formatted) + "]"
+
+
+def convert_pareto_front(pf):
+    """
+    Convert Pareto front to native Python types for JSON serialization.
+    
+    Parameters:
+    -----------
+    pf : list - List of [error, n_features] pairs
+    
+    Returns:
+    --------
+    list - List with native Python types
+    """
+    if not pf:
+        return []
+    return [[float(point[0]), int(point[1])] for point in pf]
 
 
 def run_single_dataset(ds_id, ds_file, ds_name, max_fes, n_runs=3):
@@ -36,11 +82,11 @@ def run_single_dataset(ds_id, ds_file, ds_name, max_fes, n_runs=3):
     --------
     dict - Results dictionary with metrics and Pareto fronts
     """
-    full_name = f"{ds_id}_{ds_name}"
-    print(f"\n{'='*60}")
-    print(f"Dataset: {full_name}")
-    print(f"Max FEs: {max_fes}")
-    print(f"{'='*60}")
+    full_name = "{}_{}".format(ds_id, ds_name)
+    print("\n" + "=" * 60)
+    print("Dataset: {}".format(full_name))
+    print("Max FEs: {}".format(max_fes))
+    print("=" * 60)
 
     try:
         # Load dataset
@@ -49,8 +95,8 @@ def run_single_dataset(ds_id, ds_file, ds_name, max_fes, n_runs=3):
         n_samples = X.shape[0]
         n_classes = len(np.unique(y))
 
-        print(
-            f"Loaded: {n_samples} samples, {n_features} features, {n_classes} classes")
+        print("Loaded: {} samples, {} features, {} classes".format(
+            n_samples, n_features, n_classes))
 
         # Storage for multiple runs
         all_fronts = []
@@ -63,7 +109,7 @@ def run_single_dataset(ds_id, ds_file, ds_name, max_fes, n_runs=3):
         for run in range(n_runs):
             seed = 42 + run * 100
 
-            print(f"\n--- Run {run + 1}/{n_runs} (seed={seed}) ---")
+            print("\n--- Run {}/{} (seed={}) ---".format(run + 1, n_runs, seed))
 
             # Train-test split
             X_train, y_train, X_test, y_test = train_test_split(
@@ -72,8 +118,8 @@ def run_single_dataset(ds_id, ds_file, ds_name, max_fes, n_runs=3):
             # Baseline
             baseline_error = compute_all_features_error(X_train, y_train)
             baselines.append(baseline_error)
-            print(
-                f"Baseline error (all {n_features} features): {baseline_error:.2f}%")
+            print("Baseline error (all {} features): {:.2f}%".format(
+                n_features, baseline_error))
 
             # Run MOBGA-AOS
             mobga = MOBGA_AOS(
@@ -99,10 +145,11 @@ def run_single_dataset(ds_id, ds_file, ds_name, max_fes, n_runs=3):
 
             # Print run summary
             if pareto_front:
-                best_error = min(p[0] for p in pareto_front)
-                min_features = min(p[1] for p in pareto_front)
-                print(f"PF size: {len(pareto_front)}, Best error: {best_error:.2f}%, "
-                      f"Min features: {min_features}, Time: {run_time:.1f}s")
+                best_error = min(float(p[0]) for p in pareto_front)
+                min_features = min(int(p[1]) for p in pareto_front)
+                print("PF size: {}, Best error: {:.2f}%, "
+                      "Min features: {}, Time: {:.1f}s".format(
+                          len(pareto_front), best_error, min_features, run_time))
 
         # Compute combined Pareto front
         true_pf = merge_pareto_fronts(all_fronts)
@@ -115,30 +162,35 @@ def run_single_dataset(ds_id, ds_file, ds_name, max_fes, n_runs=3):
             front, reference_point) for front in all_fronts]
 
         mean_baseline = np.mean(baselines)
+        igd_mean = float(np.mean(igd_values))
+        igd_std = float(np.std(igd_values))
+        hv_mean = float(np.mean(hv_values))
+        hv_std = float(np.std(hv_values))
 
         # Summary
-        print(f"\n{'='*40}")
-        print(f"SUMMARY: {full_name}")
-        print(f"{'='*40}")
-        print(f"IGD: {np.mean(igd_values):.6f} ± {np.std(igd_values):.6f}")
-        print(f"HV:  {np.mean(hv_values):.4f} ± {np.std(hv_values):.4f}")
-        print(f"Mean Baseline: {mean_baseline:.2f}%")
-        print(f"Combined PF size: {len(true_pf)}")
-        print(f"Combined PF: {true_pf}")
+        print("\n" + "=" * 40)
+        print("SUMMARY: {}".format(full_name))
+        print("=" * 40)
+        print("IGD: {:.6f} +/- {:.6f}".format(igd_mean, igd_std))
+        print("HV:  {:.4f} +/- {:.4f}".format(hv_mean, hv_std))
+        print("Mean Baseline: {:.2f}%".format(mean_baseline))
+        print("Combined PF size: {}".format(len(true_pf)))
+        print("Combined PF: {}".format(format_pareto_front(true_pf)))
 
         # Generate plots
         os.makedirs('results', exist_ok=True)
 
         try:
-            plot_pareto_front(all_fronts, true_pf, full_name, n_features,
-                              mean_baseline, f'results/pareto_{ds_id}.png')
-            plot_hv_convergence(all_hv_histories, full_name,
-                                f'results/hv_{ds_id}.png')
-            plot_osp_evolution(all_osp_histories, full_name,
-                               f'results/osp_{ds_id}.png')
-            print(f"Plots saved to results/")
+            if HAS_MATPLOTLIB:
+                plot_pareto_front(all_fronts, true_pf, full_name, n_features,
+                                  float(mean_baseline), 'results/pareto_{}.png'.format(ds_id))
+                plot_hv_convergence(all_hv_histories, full_name,
+                                    'results/hv_{}.png'.format(ds_id))
+                plot_osp_evolution(all_osp_histories, full_name,
+                                   'results/osp_{}.png'.format(ds_id))
+                print("Plots saved to results/")
         except Exception as e:
-            print(f"Warning: Could not generate plots: {e}")
+            print("Warning: Could not generate plots: {}".format(e))
 
         return {
             'dataset_id': ds_id,
@@ -148,22 +200,22 @@ def run_single_dataset(ds_id, ds_file, ds_name, max_fes, n_runs=3):
             'n_classes': n_classes,
             'max_fes': max_fes,
             'n_runs': n_runs,
-            'igd_mean': float(np.mean(igd_values)),
-            'igd_std': float(np.std(igd_values)),
+            'igd_mean': igd_mean,
+            'igd_std': igd_std,
             'igd_values': [float(v) for v in igd_values],
-            'hv_mean': float(np.mean(hv_values)),
-            'hv_std': float(np.std(hv_values)),
+            'hv_mean': hv_mean,
+            'hv_std': hv_std,
             'hv_values': [float(v) for v in hv_values],
             'baseline_error_mean': float(mean_baseline),
             'baseline_errors': [float(b) for b in baselines],
             'run_times': [float(t) for t in run_times],
-            'pareto_fronts': all_fronts,
-            'combined_pareto_front': true_pf,
+            'pareto_fronts': [convert_pareto_front(pf) for pf in all_fronts],
+            'combined_pareto_front': convert_pareto_front(true_pf),
             'final_osp': [list(osp[-1]) if osp else None for osp in all_osp_histories],
         }
 
     except Exception as e:
-        print(f"ERROR: Failed to process {full_name}: {e}")
+        print("ERROR: Failed to process {}: {}".format(full_name, e))
         import traceback
         traceback.print_exc()
         return None
@@ -183,11 +235,11 @@ def run_all_experiments():
         'DS10': ('DS10.csv', 'MultipleFeaturesDigit', 50000),
     }
 
-    print("="*70)
+    print("=" * 70)
     print("MOBGA-AOS EXPERIMENT RUNNER")
-    print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print("="*70)
-    print(f"\nDatasets to process: {list(DATASETS.keys())}")
+    print("Started: {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    print("=" * 70)
+    print("\nDatasets to process: {}".format(list(DATASETS.keys())))
     print("Running 3 independent runs per dataset\n")
 
     all_results = {}
@@ -223,21 +275,21 @@ def run_all_experiments():
             'combined_pareto_front': result['combined_pareto_front'],
         }
 
-    with open('results/experiment_results.json', 'w') as f:
+    with open('results/experiment_results.json', 'w', encoding='utf-8') as f:
         json.dump(json_results, f, indent=2)
 
     # Generate summary table
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("FINAL RESULTS SUMMARY")
-    print("="*70)
+    print("=" * 70)
 
-    print("\n{:<10} {:<8} {:<8} {:<15} {:<15} {:<10}".format(
-        "Dataset", "Samples", "Features", "IGD (mean±std)", "HV (mean±std)", "Baseline%"
+    print("\n{:<10} {:<8} {:<8} {:<18} {:<18} {:<10}".format(
+        "Dataset", "Samples", "Features", "IGD (mean+/-std)", "HV (mean+/-std)", "Baseline%"
     ))
-    print("-"*70)
+    print("-" * 70)
 
     for ds_id, result in all_results.items():
-        print("{:<10} {:<8} {:<8} {:.4f}±{:.4f}    {:.2f}±{:.2f}    {:.2f}%".format(
+        print("{:<10} {:<8} {:<8} {:.4f}+/-{:.4f}   {:.2f}+/-{:.2f}   {:.2f}%".format(
             result['dataset_id'],
             result['n_samples'],
             result['n_features'],
@@ -248,11 +300,11 @@ def run_all_experiments():
             result['baseline_error_mean']
         ))
 
-    print("\n" + "="*70)
-    print(f"Completed: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print("\n" + "=" * 70)
+    print("Completed: {}".format(datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
     print("Results saved to: results/experiment_results.json")
     print("Plots saved to: results/*.png")
-    print("="*70)
+    print("=" * 70)
 
     return all_results
 
@@ -275,10 +327,7 @@ def quick_test():
 
 if __name__ == "__main__":
     import sys
-
     if len(sys.argv) > 1 and sys.argv[1] == '--test':
-        # Quick test mode
         quick_test()
     else:
-        # Full experiment run
         run_all_experiments()
