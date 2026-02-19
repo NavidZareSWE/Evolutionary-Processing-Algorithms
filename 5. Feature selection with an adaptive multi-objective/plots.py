@@ -1,4 +1,5 @@
 import numpy as np
+from operators import OPERATOR_NAMES
 
 
 def plot_pareto_front(all_fronts, true_pf, dataset_name, n_features, baseline_error, save_path=None):
