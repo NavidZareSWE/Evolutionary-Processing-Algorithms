@@ -1,0 +1,753 @@
+============================================================
+Processing: DS02_LungCancer
+============================================================
+Samples: 27, Features: 56, Classes: 3
+
+Run 1/3 (seed=42)
+  Baseline error (all features): 77.78%
+Initial FEs: 100, Target: 10000
+Gen 10, FEs: 1036, PF size: 2, HV: 3566.6667
+Gen 20, FEs: 1932, PF size: 9, HV: 3888.8889
+Gen 30, FEs: 2652, PF size: 34, HV: 4288.8889
+Gen 40, FEs: 3050, PF size: 20, HV: 4322.2222
+Gen 50, FEs: 3447, PF size: 100, HV: 4644.4444
+Gen 60, FEs: 3742, PF size: 100, HV: 4644.4444
+Gen 70, FEs: 4013, PF size: 100, HV: 4644.4444
+Gen 80, FEs: 4285, PF size: 100, HV: 4644.4444
+Gen 90, FEs: 4547, PF size: 100, HV: 4644.4444
+Gen 100, FEs: 4801, PF size: 100, HV: 4644.4444
+Gen 110, FEs: 5054, PF size: 100, HV: 4644.4444
+Gen 120, FEs: 5283, PF size: 100, HV: 4644.4444
+Gen 130, FEs: 5531, PF size: 100, HV: 4644.4444
+Gen 140, FEs: 5722, PF size: 100, HV: 4644.4444
+Gen 150, FEs: 5950, PF size: 100, HV: 4644.4444
+Gen 160, FEs: 6153, PF size: 100, HV: 4644.4444
+Gen 170, FEs: 6344, PF size: 100, HV: 4644.4444
+Gen 180, FEs: 6547, PF size: 100, HV: 4644.4444
+Gen 190, FEs: 6736, PF size: 100, HV: 4644.4444
+Gen 200, FEs: 6929, PF size: 100, HV: 4644.4444
+Gen 210, FEs: 7100, PF size: 100, HV: 4644.4444
+Gen 220, FEs: 7283, PF size: 100, HV: 4644.4444
+Gen 230, FEs: 7445, PF size: 100, HV: 4644.4444
+Gen 240, FEs: 7624, PF size: 100, HV: 4644.4444
+Gen 250, FEs: 7798, PF size: 100, HV: 4644.4444
+Gen 260, FEs: 7964, PF size: 100, HV: 4644.4444
+Gen 270, FEs: 8125, PF size: 100, HV: 4644.4444
+Gen 280, FEs: 8281, PF size: 100, HV: 4644.4444
+Gen 290, FEs: 8432, PF size: 100, HV: 4644.4444
+Gen 300, FEs: 8590, PF size: 100, HV: 4644.4444
+Gen 310, FEs: 8725, PF size: 100, HV: 4644.4444
+Gen 320, FEs: 8883, PF size: 100, HV: 4644.4444
+Gen 330, FEs: 9050, PF size: 100, HV: 4644.4444
+Gen 340, FEs: 9187, PF size: 100, HV: 4644.4444
+Gen 350, FEs: 9338, PF size: 100, HV: 4644.4444
+Gen 360, FEs: 9475, PF size: 100, HV: 4644.4444
+Gen 370, FEs: 9612, PF size: 100, HV: 4644.4444
+Gen 380, FEs: 9737, PF size: 100, HV: 4644.4444
+Gen 390, FEs: 9877, PF size: 100, HV: 4644.4444
+  Pareto front size: 100
+  Run time: 18.20s
+
+Run 2/3 (seed=142)
+  Baseline error (all features): 55.56%
+Initial FEs: 100, Target: 10000
+Gen 10, FEs: 1043, PF size: 4, HV: 3911.1111
+Gen 20, FEs: 1947, PF size: 9, HV: 4583.3333
+Gen 30, FEs: 2768, PF size: 13, HV: 4783.3333
+Gen 40, FEs: 3327, PF size: 100, HV: 4850.0000
+Gen 50, FEs: 3732, PF size: 25, HV: 4866.6667
+Gen 60, FEs: 4151, PF size: 100, HV: 4866.6667
+Gen 70, FEs: 4469, PF size: 100, HV: 4916.6667
+Gen 80, FEs: 4772, PF size: 100, HV: 4916.6667
+Gen 90, FEs: 5053, PF size: 100, HV: 4927.7778
+Gen 100, FEs: 5307, PF size: 100, HV: 4927.7778
+Gen 110, FEs: 5583, PF size: 100, HV: 4927.7778
+Gen 120, FEs: 5879, PF size: 100, HV: 4927.7778
+Gen 130, FEs: 6236, PF size: 100, HV: 4927.7778
+Gen 140, FEs: 6551, PF size: 100, HV: 4927.7778
+Gen 150, FEs: 6872, PF size: 100, HV: 4927.7778
+Gen 160, FEs: 7156, PF size: 100, HV: 4927.7778
+Gen 170, FEs: 7439, PF size: 100, HV: 4927.7778
+Gen 180, FEs: 7743, PF size: 100, HV: 4927.7778
+Gen 190, FEs: 7997, PF size: 100, HV: 4927.7778
+Gen 200, FEs: 8264, PF size: 100, HV: 4927.7778
+Gen 210, FEs: 8521, PF size: 100, HV: 4927.7778
+Gen 220, FEs: 8766, PF size: 100, HV: 4933.3333
+Gen 230, FEs: 8934, PF size: 100, HV: 4938.8889
+Gen 240, FEs: 9112, PF size: 100, HV: 4938.8889
+Gen 250, FEs: 9293, PF size: 100, HV: 4938.8889
+Gen 260, FEs: 9510, PF size: 100, HV: 4938.8889
+Gen 270, FEs: 9774, PF size: 100, HV: 4938.8889
+Gen 280, FEs: 10000, PF size: 100, HV: 4938.8889
+  Pareto front size: 100
+  Run time: 13.27s
+
+Run 3/3 (seed=242)
+  Baseline error (all features): 61.11%
+Initial FEs: 100, Target: 10000
+Gen 10, FEs: 1039, PF size: 5, HV: 3777.7778
+Gen 20, FEs: 1952, PF size: 9, HV: 4316.6667
+Gen 30, FEs: 2851, PF size: 10, HV: 4488.8889
+Gen 40, FEs: 3539, PF size: 81, HV: 4588.8889
+Gen 50, FEs: 3896, PF size: 100, HV: 4600.0000
+Gen 60, FEs: 4204, PF size: 100, HV: 4605.5556
+Gen 70, FEs: 4465, PF size: 100, HV: 4611.1111
+Gen 80, FEs: 4763, PF size: 100, HV: 4616.6667
+Gen 90, FEs: 5081, PF size: 100, HV: 4616.6667
+Gen 100, FEs: 5408, PF size: 100, HV: 4616.6667
+Gen 110, FEs: 5729, PF size: 100, HV: 4616.6667
+Gen 120, FEs: 6081, PF size: 100, HV: 4616.6667
+Gen 130, FEs: 6406, PF size: 100, HV: 4616.6667
+Gen 140, FEs: 6721, PF size: 100, HV: 4616.6667
+Gen 150, FEs: 7027, PF size: 100, HV: 4616.6667
+Gen 160, FEs: 7318, PF size: 100, HV: 4616.6667
+Gen 170, FEs: 7617, PF size: 100, HV: 4616.6667
+Gen 180, FEs: 7906, PF size: 100, HV: 4616.6667
+Gen 190, FEs: 8198, PF size: 100, HV: 4616.6667
+Gen 200, FEs: 8458, PF size: 100, HV: 4616.6667
+Gen 210, FEs: 8745, PF size: 100, HV: 4616.6667
+Gen 220, FEs: 9001, PF size: 100, HV: 4616.6667
+Gen 230, FEs: 9270, PF size: 100, HV: 4616.6667
+Gen 240, FEs: 9534, PF size: 100, HV: 4616.6667
+Gen 250, FEs: 9812, PF size: 100, HV: 4616.6667
+  Pareto front size: 100
+  Run time: 12.57s
+
+Results for DS02_LungCancer:
+  IGD: 1.792850 +/- 1.287907
+  HV:  4733.3333 +/- 145.7914
+  Mean baseline error: 64.81%
+  Combined PF: [[11.11, 5], [16.67, 2], [33.33, 1], [100.00, 0]]
+Error processing DS02_LungCancer: name 'OPERATOR_NAMES' is not defined
+
+============================================================
+Processing: DS04_OpticalRecognition
+============================================================
+Samples: 1000, Features: 64, Classes: 10
+
+Run 1/3 (seed=42)
+  Baseline error (all features): 2.71%
+Initial FEs: 100, Target: 15000
+Gen 10, FEs: 1046, PF size: 14, HV: 4837.4286
+Gen 20, FEs: 1968, PF size: 12, HV: 5429.1429
+Gen 30, FEs: 2897, PF size: 22, HV: 5617.0000
+Gen 40, FEs: 3788, PF size: 35, HV: 5707.8571
+Gen 50, FEs: 4660, PF size: 65, HV: 5728.4286
+Gen 60, FEs: 5536, PF size: 45, HV: 5818.7143
+Gen 70, FEs: 6319, PF size: 97, HV: 5827.4286
+Gen 80, FEs: 6933, PF size: 100, HV: 5829.0000
+Gen 90, FEs: 7548, PF size: 100, HV: 5894.5714
+Gen 100, FEs: 8190, PF size: 100, HV: 5895.0000
+Gen 110, FEs: 8820, PF size: 100, HV: 5895.4286
+Gen 120, FEs: 9476, PF size: 100, HV: 5901.5714
+Gen 130, FEs: 10111, PF size: 100, HV: 5953.0000
+Gen 140, FEs: 10741, PF size: 100, HV: 5953.1429
+Gen 150, FEs: 11391, PF size: 100, HV: 5953.7143
+Gen 160, FEs: 12007, PF size: 100, HV: 5953.8571
+Gen 170, FEs: 12633, PF size: 100, HV: 5993.8571
+Gen 180, FEs: 13249, PF size: 100, HV: 6014.0000
+Gen 190, FEs: 13864, PF size: 100, HV: 6014.2857
+Gen 200, FEs: 14447, PF size: 94, HV: 6017.5714
+Gen 210, FEs: 15000, PF size: 100, HV: 6017.5714
+  Pareto front size: 100
+  Run time: 190.38s
+
+Run 2/3 (seed=142)
+  Baseline error (all features): 1.86%
+Initial FEs: 100, Target: 15000
+Gen 10, FEs: 1051, PF size: 13, HV: 5023.0000
+Gen 20, FEs: 1991, PF size: 17, HV: 5340.1429
+Gen 30, FEs: 2899, PF size: 26, HV: 5466.7143
+Gen 40, FEs: 3761, PF size: 28, HV: 5477.8571
+Gen 50, FEs: 4614, PF size: 57, HV: 5654.8571
+Gen 60, FEs: 5397, PF size: 54, HV: 5745.8571
+Gen 70, FEs: 6127, PF size: 100, HV: 5748.0000
+Gen 80, FEs: 6795, PF size: 100, HV: 5750.1429
+Gen 90, FEs: 7446, PF size: 100, HV: 5750.8571
+Gen 100, FEs: 8053, PF size: 100, HV: 5821.4286
+Gen 110, FEs: 8655, PF size: 100, HV: 5823.1429
+Gen 120, FEs: 9281, PF size: 100, HV: 5825.7143
+Gen 130, FEs: 9842, PF size: 100, HV: 5828.4286
+Gen 140, FEs: 10419, PF size: 100, HV: 5828.8571
+Gen 150, FEs: 11001, PF size: 100, HV: 5888.1429
+Gen 160, FEs: 11588, PF size: 100, HV: 5888.4286
+Gen 170, FEs: 12159, PF size: 100, HV: 5888.4286
+Gen 180, FEs: 12725, PF size: 100, HV: 5888.5714
+Gen 190, FEs: 13290, PF size: 100, HV: 5890.8571
+Gen 200, FEs: 13840, PF size: 100, HV: 5891.0000
+Gen 210, FEs: 14400, PF size: 100, HV: 5891.0000
+Gen 220, FEs: 14939, PF size: 100, HV: 5891.1429
+  Pareto front size: 100
+  Run time: 192.77s
+
+Run 3/3 (seed=242)
+  Baseline error (all features): 3.14%
+Initial FEs: 100, Target: 15000
+Gen 10, FEs: 1043, PF size: 16, HV: 5038.4286
+Gen 20, FEs: 1971, PF size: 13, HV: 5228.4286
+Gen 30, FEs: 2895, PF size: 16, HV: 5580.8571
+Gen 40, FEs: 3810, PF size: 25, HV: 5611.8571
+Gen 50, FEs: 4666, PF size: 68, HV: 5710.8571
+Gen 60, FEs: 5345, PF size: 95, HV: 5717.5714
+Gen 70, FEs: 5923, PF size: 100, HV: 5719.7143
+Gen 80, FEs: 6529, PF size: 100, HV: 5795.0000
+Gen 90, FEs: 7162, PF size: 100, HV: 5884.8571
+Gen 100, FEs: 7787, PF size: 95, HV: 5908.5714
+Gen 110, FEs: 8403, PF size: 100, HV: 5916.0000
+Gen 120, FEs: 9015, PF size: 100, HV: 5948.2857
+Gen 130, FEs: 9635, PF size: 100, HV: 5949.8571
+Gen 140, FEs: 10250, PF size: 100, HV: 5952.2857
+Gen 150, FEs: 10844, PF size: 100, HV: 5971.8571
+Gen 160, FEs: 11456, PF size: 100, HV: 5975.7143
+Gen 170, FEs: 12038, PF size: 100, HV: 5982.0000
+Gen 180, FEs: 12581, PF size: 100, HV: 5985.1429
+Gen 190, FEs: 13163, PF size: 100, HV: 5985.1429
+Gen 200, FEs: 13759, PF size: 100, HV: 5985.7143
+Gen 210, FEs: 14355, PF size: 100, HV: 5985.7143
+Gen 220, FEs: 14942, PF size: 100, HV: 5985.7143
+  Pareto front size: 100
+  Run time: 186.85s
+
+Results for DS04_OpticalRecognition:
+  IGD: 1.720022 +/- 1.751565
+  HV:  5964.8095 +/- 53.6892
+  Mean baseline error: 2.57%
+  Combined PF: [[1.29, 21], [1.43, 20], [1.71, 19], [1.86, 18], [2.14, 17], [2.29, 16], [2.43, 15], [2.71, 14], [3.14, 13], [4.00, 12], [4.86, 11], [6.14, 10], [7.14, 9], [10.00, 8], [13.00, 7], [16.86, 6], [22.00, 5], [33.71, 4], [48.57, 3], [60.00, 2], [79.14, 1]]
+Error processing DS04_OpticalRecognition: name 'OPERATOR_NAMES' is not defined
+
+============================================================
+Processing: DS05_MadelonValid
+============================================================
+Samples: 600, Features: 500, Classes: 2
+
+Run 1/3 (seed=42)
+  Baseline error (all features): 32.86%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1032, PF size: 8, HV: 19792.6190
+Gen 20, FEs: 2007, PF size: 9, HV: 22884.7619
+Gen 30, FEs: 2947, PF size: 9, HV: 24851.4286
+Gen 40, FEs: 3908, PF size: 8, HV: 26038.0952
+Gen 50, FEs: 4864, PF size: 7, HV: 27952.6190
+Gen 60, FEs: 5809, PF size: 13, HV: 28988.0952
+Gen 70, FEs: 6761, PF size: 7, HV: 30371.6667
+Gen 80, FEs: 7699, PF size: 17, HV: 31050.7143
+Gen 90, FEs: 8623, PF size: 11, HV: 31575.4762
+Gen 100, FEs: 9562, PF size: 10, HV: 32164.0476
+Gen 110, FEs: 10488, PF size: 14, HV: 32412.6190
+Gen 120, FEs: 11413, PF size: 15, HV: 32862.8571
+Gen 130, FEs: 12338, PF size: 32, HV: 33156.6667
+Gen 140, FEs: 13233, PF size: 26, HV: 33808.0952
+Gen 150, FEs: 14103, PF size: 27, HV: 33832.1429
+Gen 160, FEs: 14982, PF size: 48, HV: 33994.0476
+Gen 170, FEs: 15818, PF size: 74, HV: 34070.4762
+Gen 180, FEs: 16572, PF size: 26, HV: 34822.6190
+Gen 190, FEs: 17475, PF size: 20, HV: 35096.9048
+Gen 200, FEs: 18375, PF size: 29, HV: 35201.1905
+Gen 210, FEs: 19290, PF size: 38, HV: 35696.4286
+Gen 220, FEs: 20194, PF size: 29, HV: 35815.7143
+Gen 230, FEs: 21089, PF size: 42, HV: 35901.1905
+Gen 240, FEs: 21970, PF size: 31, HV: 36377.1429
+Gen 250, FEs: 22874, PF size: 26, HV: 36454.2857
+Gen 260, FEs: 23754, PF size: 60, HV: 36660.9524
+Gen 270, FEs: 24606, PF size: 84, HV: 36676.4286
+Gen 280, FEs: 25469, PF size: 100, HV: 36753.3333
+Gen 290, FEs: 26246, PF size: 100, HV: 36755.0000
+Gen 300, FEs: 27054, PF size: 100, HV: 37132.8571
+Gen 310, FEs: 27877, PF size: 100, HV: 37210.2381
+Gen 320, FEs: 28723, PF size: 100, HV: 37216.9048
+Gen 330, FEs: 29572, PF size: 100, HV: 37295.7143
+  Pareto front size: 100
+  Run time: 265.18s
+
+Run 2/3 (seed=142)
+  Baseline error (all features): 30.48%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1058, PF size: 5, HV: 18781.1905
+Gen 20, FEs: 2002, PF size: 7, HV: 21384.2857
+Gen 30, FEs: 2961, PF size: 7, HV: 23210.4762
+Gen 40, FEs: 3905, PF size: 6, HV: 25254.5238
+Gen 50, FEs: 4874, PF size: 17, HV: 26606.6667
+Gen 60, FEs: 5810, PF size: 8, HV: 28231.9048
+Gen 70, FEs: 6763, PF size: 10, HV: 28778.8095
+Gen 80, FEs: 7695, PF size: 8, HV: 29503.0952
+Gen 90, FEs: 8614, PF size: 14, HV: 30353.5714
+Gen 100, FEs: 9548, PF size: 21, HV: 30867.8571
+Gen 110, FEs: 10469, PF size: 11, HV: 31534.7619
+Gen 120, FEs: 11407, PF size: 15, HV: 32159.5238
+Gen 130, FEs: 12322, PF size: 11, HV: 32457.1429
+Gen 140, FEs: 13222, PF size: 16, HV: 33103.0952
+Gen 150, FEs: 14125, PF size: 15, HV: 33507.8571
+Gen 160, FEs: 15051, PF size: 16, HV: 33672.6190
+Gen 170, FEs: 15970, PF size: 12, HV: 34091.1905
+Gen 180, FEs: 16881, PF size: 10, HV: 34373.5714
+Gen 190, FEs: 17776, PF size: 4, HV: 34607.3810
+Gen 200, FEs: 18586, PF size: 34, HV: 34903.3333
+Gen 210, FEs: 19260, PF size: 24, HV: 34988.3333
+Gen 220, FEs: 19925, PF size: 92, HV: 35284.7619
+Gen 230, FEs: 20626, PF size: 62, HV: 35376.1905
+Gen 240, FEs: 21286, PF size: 100, HV: 36065.7143
+Gen 250, FEs: 21937, PF size: 100, HV: 36142.6190
+Gen 260, FEs: 22665, PF size: 100, HV: 36219.5238
+Gen 270, FEs: 23417, PF size: 100, HV: 36219.5238
+Gen 280, FEs: 24131, PF size: 96, HV: 36227.3810
+Gen 290, FEs: 24832, PF size: 100, HV: 36303.8095
+Gen 300, FEs: 25520, PF size: 100, HV: 36381.1905
+Gen 310, FEs: 26210, PF size: 100, HV: 36455.9524
+Gen 320, FEs: 26951, PF size: 100, HV: 36530.7143
+Gen 330, FEs: 27687, PF size: 100, HV: 36531.9048
+Gen 340, FEs: 28456, PF size: 100, HV: 36676.6667
+Gen 350, FEs: 29204, PF size: 96, HV: 36679.7619
+Gen 360, FEs: 29976, PF size: 100, HV: 36750.9524
+  Pareto front size: 88
+  Run time: 268.29s
+
+Run 3/3 (seed=242)
+  Baseline error (all features): 31.90%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1040, PF size: 9, HV: 19551.1905
+Gen 20, FEs: 1992, PF size: 9, HV: 21180.0000
+Gen 30, FEs: 2938, PF size: 12, HV: 23476.1905
+Gen 40, FEs: 3884, PF size: 8, HV: 25434.0476
+Gen 50, FEs: 4826, PF size: 4, HV: 27426.4286
+Gen 60, FEs: 5787, PF size: 10, HV: 29342.6190
+Gen 70, FEs: 6737, PF size: 9, HV: 30113.3333
+Gen 80, FEs: 7669, PF size: 7, HV: 31147.6190
+Gen 90, FEs: 8579, PF size: 11, HV: 32195.2381
+Gen 100, FEs: 9486, PF size: 17, HV: 32546.1905
+Gen 110, FEs: 10392, PF size: 14, HV: 33632.3810
+Gen 120, FEs: 11305, PF size: 15, HV: 33950.4762
+Gen 130, FEs: 12219, PF size: 31, HV: 34620.0000
+Gen 140, FEs: 13088, PF size: 25, HV: 34914.7619
+Gen 150, FEs: 14003, PF size: 19, HV: 35080.7143
+Gen 160, FEs: 14912, PF size: 18, HV: 35796.4286
+Gen 170, FEs: 15814, PF size: 32, HV: 36234.7619
+Gen 180, FEs: 16747, PF size: 23, HV: 36270.7143
+Gen 190, FEs: 17666, PF size: 23, HV: 37163.3333
+Gen 200, FEs: 18570, PF size: 44, HV: 37270.0000
+Gen 210, FEs: 19451, PF size: 97, HV: 37427.8571
+Gen 220, FEs: 20328, PF size: 77, HV: 37526.9048
+Gen 230, FEs: 21094, PF size: 32, HV: 37644.0476
+Gen 240, FEs: 21903, PF size: 20, HV: 37673.0952
+Gen 250, FEs: 22696, PF size: 40, HV: 37818.3333
+Gen 260, FEs: 23531, PF size: 33, HV: 37830.0000
+Gen 270, FEs: 24310, PF size: 100, HV: 37905.0000
+Gen 280, FEs: 25081, PF size: 100, HV: 37918.5714
+Gen 290, FEs: 25871, PF size: 100, HV: 38127.1429
+Gen 300, FEs: 26704, PF size: 60, HV: 38208.8095
+Gen 310, FEs: 27540, PF size: 100, HV: 38284.7619
+Gen 320, FEs: 28373, PF size: 100, HV: 38292.6190
+Gen 330, FEs: 29206, PF size: 100, HV: 38297.3810
+Gen 340, FEs: 30000, PF size: 100, HV: 38443.0952
+  Pareto front size: 100
+  Run time: 269.52s
+
+Results for DS05_MadelonValid:
+  IGD: 2.390626 +/- 1.758345
+  HV:  37524.4444 +/- 695.9977
+  Mean baseline error: 31.75%
+  Combined PF: [[15.71, 75], [15.95, 71], [16.43, 70], [17.14, 69], [17.38, 68], [17.62, 65], [18.10, 64], [18.81, 60], [19.05, 59], [19.52, 56], [20.71, 55], [21.19, 54], [21.90, 53], [22.14, 52], [22.86, 51], [23.57, 50], [24.05, 49], [25.24, 48], [25.71, 47], [28.57, 46], [28.81, 44], [30.48, 43]]
+Error processing DS05_MadelonValid: name 'OPERATOR_NAMES' is not defined
+
+============================================================
+Processing: DS07_Har
+============================================================
+Samples: 900, Features: 561, Classes: 6
+
+Run 1/3 (seed=42)
+  Baseline error (all features): 11.75%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1053, PF size: 6, HV: 31586.1905
+Gen 20, FEs: 2004, PF size: 13, HV: 34684.9206
+Gen 30, FEs: 2956, PF size: 8, HV: 36345.7143
+Gen 40, FEs: 3906, PF size: 8, HV: 37601.4286
+Gen 50, FEs: 4851, PF size: 8, HV: 38770.0000
+Gen 60, FEs: 5790, PF size: 12, HV: 39725.0794
+Gen 70, FEs: 6742, PF size: 8, HV: 40715.8730
+Gen 80, FEs: 7675, PF size: 8, HV: 41552.6984
+Gen 90, FEs: 8617, PF size: 7, HV: 42199.2063
+Gen 100, FEs: 9551, PF size: 5, HV: 42752.3810
+Gen 110, FEs: 10479, PF size: 8, HV: 43304.6032
+Gen 120, FEs: 11394, PF size: 4, HV: 43955.7143
+Gen 130, FEs: 12309, PF size: 9, HV: 44722.2222
+Gen 140, FEs: 13234, PF size: 14, HV: 45369.6825
+Gen 150, FEs: 14140, PF size: 6, HV: 45754.6032
+Gen 160, FEs: 15047, PF size: 4, HV: 46051.7460
+Gen 170, FEs: 15958, PF size: 6, HV: 46625.7143
+Gen 180, FEs: 16830, PF size: 13, HV: 47086.3492
+Gen 190, FEs: 17711, PF size: 14, HV: 47453.6508
+Gen 200, FEs: 18538, PF size: 14, HV: 47820.6349
+Gen 210, FEs: 19375, PF size: 19, HV: 48013.9683
+Gen 220, FEs: 20250, PF size: 11, HV: 48664.9206
+Gen 230, FEs: 21153, PF size: 12, HV: 48673.0159
+Gen 240, FEs: 22043, PF size: 18, HV: 48961.4286
+Gen 250, FEs: 22934, PF size: 31, HV: 49154.1270
+Gen 260, FEs: 23684, PF size: 100, HV: 49252.6984
+Gen 270, FEs: 24310, PF size: 28, HV: 49254.2857
+Gen 280, FEs: 25132, PF size: 20, HV: 49352.2222
+Gen 290, FEs: 25939, PF size: 8, HV: 49354.7619
+Gen 300, FEs: 26798, PF size: 25, HV: 49451.7460
+Gen 310, FEs: 27637, PF size: 35, HV: 49644.2857
+Gen 320, FEs: 28479, PF size: 65, HV: 49646.0317
+Gen 330, FEs: 29205, PF size: 100, HV: 49742.6984
+Gen 340, FEs: 29836, PF size: 100, HV: 49742.8571
+  Pareto front size: 100
+  Run time: 385.30s
+
+Run 2/3 (seed=142)
+  Baseline error (all features): 12.86%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1053, PF size: 7, HV: 31075.8730
+Gen 20, FEs: 2008, PF size: 7, HV: 33745.3968
+Gen 30, FEs: 2961, PF size: 6, HV: 35302.2222
+Gen 40, FEs: 3914, PF size: 6, HV: 37625.0794
+Gen 50, FEs: 4855, PF size: 9, HV: 38970.7937
+Gen 60, FEs: 5797, PF size: 11, HV: 39981.9048
+Gen 70, FEs: 6733, PF size: 8, HV: 40495.5556
+Gen 80, FEs: 7665, PF size: 16, HV: 40939.5238
+Gen 90, FEs: 8600, PF size: 18, HV: 41852.8571
+Gen 100, FEs: 9522, PF size: 23, HV: 42511.9048
+Gen 110, FEs: 10445, PF size: 17, HV: 42690.3175
+Gen 120, FEs: 11354, PF size: 21, HV: 42790.6349
+Gen 130, FEs: 12252, PF size: 19, HV: 42896.8254
+Gen 140, FEs: 13174, PF size: 19, HV: 43182.8571
+Gen 150, FEs: 14087, PF size: 24, HV: 43186.3492
+Gen 160, FEs: 15009, PF size: 29, HV: 43592.3810
+Gen 170, FEs: 15936, PF size: 45, HV: 43876.6667
+Gen 180, FEs: 16824, PF size: 27, HV: 44036.3492
+Gen 190, FEs: 17720, PF size: 31, HV: 44320.1587
+Gen 200, FEs: 18638, PF size: 42, HV: 44510.4762
+Gen 210, FEs: 19563, PF size: 33, HV: 44855.5556
+Gen 220, FEs: 20500, PF size: 30, HV: 44956.5079
+Gen 230, FEs: 21436, PF size: 13, HV: 45329.8413
+Gen 240, FEs: 22364, PF size: 26, HV: 45341.4286
+Gen 250, FEs: 23281, PF size: 25, HV: 45544.2857
+Gen 260, FEs: 24189, PF size: 34, HV: 45641.7460
+Gen 270, FEs: 25127, PF size: 42, HV: 45833.6508
+Gen 280, FEs: 26039, PF size: 53, HV: 45928.7302
+Gen 290, FEs: 26939, PF size: 42, HV: 46025.0794
+Gen 300, FEs: 27841, PF size: 35, HV: 46223.1746
+Gen 310, FEs: 28740, PF size: 53, HV: 46502.5397
+Gen 320, FEs: 29637, PF size: 23, HV: 46521.1111
+  Pareto front size: 20
+  Run time: 380.83s
+
+Run 3/3 (seed=242)
+  Baseline error (all features): 12.70%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1063, PF size: 7, HV: 31980.9524
+Gen 20, FEs: 2028, PF size: 4, HV: 34886.6667
+Gen 30, FEs: 2978, PF size: 9, HV: 37609.3651
+Gen 40, FEs: 3938, PF size: 7, HV: 38674.1270
+Gen 50, FEs: 4883, PF size: 16, HV: 40336.1905
+Gen 60, FEs: 5830, PF size: 9, HV: 41249.2063
+Gen 70, FEs: 6775, PF size: 10, HV: 42429.2063
+Gen 80, FEs: 7724, PF size: 8, HV: 43462.3810
+Gen 90, FEs: 8655, PF size: 11, HV: 44461.9048
+Gen 100, FEs: 9601, PF size: 10, HV: 45546.0317
+Gen 110, FEs: 10538, PF size: 13, HV: 46370.6349
+Gen 120, FEs: 11468, PF size: 13, HV: 47095.2381
+Gen 130, FEs: 12409, PF size: 11, HV: 47308.2540
+Gen 140, FEs: 13310, PF size: 16, HV: 47675.7143
+Gen 150, FEs: 14187, PF size: 18, HV: 47961.7460
+Gen 160, FEs: 15057, PF size: 36, HV: 48138.7302
+Gen 170, FEs: 15908, PF size: 17, HV: 48239.0476
+Gen 180, FEs: 16795, PF size: 16, HV: 48431.2698
+Gen 190, FEs: 17698, PF size: 38, HV: 48720.7937
+Gen 200, FEs: 18573, PF size: 78, HV: 48818.7302
+Gen 210, FEs: 19319, PF size: 34, HV: 48914.7619
+Gen 220, FEs: 20171, PF size: 14, HV: 49017.3016
+Gen 230, FEs: 21073, PF size: 27, HV: 49208.8889
+Gen 240, FEs: 21942, PF size: 28, HV: 49310.7937
+Gen 250, FEs: 22820, PF size: 30, HV: 49411.5873
+Gen 260, FEs: 23715, PF size: 24, HV: 49511.2698
+Gen 270, FEs: 24605, PF size: 24, HV: 49609.8413
+Gen 280, FEs: 25497, PF size: 10, HV: 49804.1270
+Gen 290, FEs: 26352, PF size: 45, HV: 49806.0317
+Gen 300, FEs: 27224, PF size: 18, HV: 49809.3651
+Gen 310, FEs: 28087, PF size: 14, HV: 50002.6984
+Gen 320, FEs: 28899, PF size: 35, HV: 50099.6825
+Gen 330, FEs: 29696, PF size: 100, HV: 50195.8730
+  Pareto front size: 100
+  Run time: 377.92s
+
+Results for DS07_Har:
+  IGD: 7.715959 +/- 10.013298
+  HV:  48882.0106 +/- 1549.1905
+  Mean baseline error: 12.43%
+  Combined PF: [[2.70, 60], [2.86, 59], [3.02, 58], [3.17, 56], [3.49, 50], [3.81, 48], [4.13, 46]]
+Error processing DS07_Har: name 'OPERATOR_NAMES' is not defined
+
+============================================================
+Processing: DS08_HAPT
+============================================================
+Samples: 1200, Features: 561, Classes: 12
+
+Run 1/3 (seed=42)
+  Baseline error (all features): 11.67%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1051, PF size: 5, HV: 31584.6429
+Gen 20, FEs: 2017, PF size: 11, HV: 34064.5238
+Gen 30, FEs: 2977, PF size: 6, HV: 36101.7857
+Gen 40, FEs: 3930, PF size: 4, HV: 38611.6667
+Gen 50, FEs: 4861, PF size: 4, HV: 39846.5476
+Gen 60, FEs: 5800, PF size: 3, HV: 41072.3810
+Gen 70, FEs: 6751, PF size: 7, HV: 42346.0714
+Gen 80, FEs: 7687, PF size: 10, HV: 42982.3810
+Gen 90, FEs: 8627, PF size: 11, HV: 43843.3333
+Gen 100, FEs: 9550, PF size: 9, HV: 44320.9524
+Gen 110, FEs: 10465, PF size: 14, HV: 44844.7619
+Gen 120, FEs: 11374, PF size: 16, HV: 45228.4524
+Gen 130, FEs: 12284, PF size: 17, HV: 45515.1190
+Gen 140, FEs: 13137, PF size: 22, HV: 45761.5476
+Gen 150, FEs: 13984, PF size: 20, HV: 46137.9762
+Gen 160, FEs: 14842, PF size: 15, HV: 46420.3571
+Gen 170, FEs: 15737, PF size: 8, HV: 46891.9048
+Gen 180, FEs: 16632, PF size: 31, HV: 46989.8810
+Gen 190, FEs: 17499, PF size: 23, HV: 47273.0952
+Gen 200, FEs: 18374, PF size: 34, HV: 47367.5000
+Gen 210, FEs: 19197, PF size: 92, HV: 47369.2857
+Gen 220, FEs: 19882, PF size: 100, HV: 47462.3810
+Gen 230, FEs: 20567, PF size: 100, HV: 47463.2143
+Gen 240, FEs: 21275, PF size: 100, HV: 47648.2143
+Gen 250, FEs: 21963, PF size: 100, HV: 47651.9048
+Gen 260, FEs: 22634, PF size: 100, HV: 47653.5714
+Gen 270, FEs: 23230, PF size: 100, HV: 47654.5238
+Gen 280, FEs: 23819, PF size: 100, HV: 47655.4762
+Gen 290, FEs: 24354, PF size: 5, HV: 47755.7143
+Gen 300, FEs: 24904, PF size: 17, HV: 47910.4762
+Gen 310, FEs: 25735, PF size: 8, HV: 48220.8333
+Gen 320, FEs: 26520, PF size: 21, HV: 48529.0476
+Gen 330, FEs: 27170, PF size: 100, HV: 48717.1429
+Gen 340, FEs: 27817, PF size: 100, HV: 48778.6905
+Gen 350, FEs: 28438, PF size: 38, HV: 48872.7381
+Gen 360, FEs: 29185, PF size: 51, HV: 48966.9048
+Gen 370, FEs: 29832, PF size: 100, HV: 49060.7143
+  Pareto front size: 100
+  Run time: 601.58s
+
+Run 2/3 (seed=142)
+  Baseline error (all features): 13.10%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1051, PF size: 14, HV: 30707.3810
+Gen 20, FEs: 2017, PF size: 12, HV: 33255.2381
+Gen 30, FEs: 2961, PF size: 14, HV: 34880.5952
+Gen 40, FEs: 3920, PF size: 6, HV: 36448.2143
+Gen 50, FEs: 4872, PF size: 15, HV: 37687.5000
+Gen 60, FEs: 5812, PF size: 7, HV: 38295.9524
+Gen 70, FEs: 6755, PF size: 6, HV: 39313.4524
+Gen 80, FEs: 7693, PF size: 9, HV: 39973.3333
+Gen 90, FEs: 8632, PF size: 8, HV: 40579.4048
+Gen 100, FEs: 9573, PF size: 6, HV: 41507.7381
+Gen 110, FEs: 10503, PF size: 11, HV: 42319.8810
+Gen 120, FEs: 11427, PF size: 15, HV: 42980.2381
+Gen 130, FEs: 12369, PF size: 13, HV: 43413.9286
+Gen 140, FEs: 13278, PF size: 15, HV: 43607.2619
+Gen 150, FEs: 14201, PF size: 18, HV: 43935.1190
+Gen 160, FEs: 15103, PF size: 22, HV: 43942.7381
+Gen 170, FEs: 16020, PF size: 23, HV: 44271.4286
+Gen 180, FEs: 16920, PF size: 41, HV: 44781.9048
+Gen 190, FEs: 17778, PF size: 37, HV: 44877.8571
+Gen 200, FEs: 18674, PF size: 17, HV: 44977.0238
+Gen 210, FEs: 19549, PF size: 52, HV: 45161.4286
+Gen 220, FEs: 20416, PF size: 19, HV: 45403.0952
+Gen 230, FEs: 21330, PF size: 28, HV: 45589.8810
+Gen 240, FEs: 22226, PF size: 44, HV: 45595.2381
+Gen 250, FEs: 23087, PF size: 20, HV: 45688.4524
+Gen 260, FEs: 23877, PF size: 27, HV: 45784.1667
+Gen 270, FEs: 24742, PF size: 37, HV: 45877.7381
+Gen 280, FEs: 25548, PF size: 46, HV: 46064.2857
+Gen 290, FEs: 26381, PF size: 36, HV: 46250.8333
+Gen 300, FEs: 27246, PF size: 31, HV: 46256.1905
+Gen 310, FEs: 28105, PF size: 38, HV: 46441.6667
+Gen 320, FEs: 28956, PF size: 80, HV: 46535.8333
+Gen 330, FEs: 29766, PF size: 84, HV: 46537.8571
+  Pareto front size: 53
+  Run time: 610.68s
+
+Run 3/3 (seed=242)
+  Baseline error (all features): 13.57%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1050, PF size: 6, HV: 30930.4762
+Gen 20, FEs: 1998, PF size: 8, HV: 33475.3571
+Gen 30, FEs: 2945, PF size: 8, HV: 35846.3095
+Gen 40, FEs: 3897, PF size: 11, HV: 38000.9524
+Gen 50, FEs: 4837, PF size: 14, HV: 39276.1905
+Gen 60, FEs: 5795, PF size: 14, HV: 40432.9762
+Gen 70, FEs: 6739, PF size: 8, HV: 41073.6905
+Gen 80, FEs: 7686, PF size: 12, HV: 41724.2857
+Gen 90, FEs: 8628, PF size: 10, HV: 42539.0476
+Gen 100, FEs: 9570, PF size: 12, HV: 43157.5000
+Gen 110, FEs: 10514, PF size: 11, HV: 43645.0000
+Gen 120, FEs: 11431, PF size: 12, HV: 44204.6429
+Gen 130, FEs: 12333, PF size: 16, HV: 44486.6667
+Gen 140, FEs: 13242, PF size: 18, HV: 44910.5952
+Gen 150, FEs: 14142, PF size: 16, HV: 45195.3571
+Gen 160, FEs: 15038, PF size: 28, HV: 45407.5000
+Gen 170, FEs: 15917, PF size: 22, HV: 45596.7857
+Gen 180, FEs: 16828, PF size: 24, HV: 45876.3095
+Gen 190, FEs: 17737, PF size: 17, HV: 46030.0000
+Gen 200, FEs: 18595, PF size: 42, HV: 46216.5476
+Gen 210, FEs: 19464, PF size: 37, HV: 46219.6429
+Gen 220, FEs: 20307, PF size: 50, HV: 46221.6667
+Gen 230, FEs: 21126, PF size: 20, HV: 46408.0952
+Gen 240, FEs: 22007, PF size: 23, HV: 46503.2143
+Gen 250, FEs: 22885, PF size: 14, HV: 46747.3810
+Gen 260, FEs: 23761, PF size: 22, HV: 46934.8810
+Gen 270, FEs: 24648, PF size: 16, HV: 47215.5952
+Gen 280, FEs: 25485, PF size: 26, HV: 47459.6429
+Gen 290, FEs: 26367, PF size: 53, HV: 47556.0714
+Gen 300, FEs: 27280, PF size: 19, HV: 47656.0714
+Gen 310, FEs: 28179, PF size: 21, HV: 48027.2619
+Gen 320, FEs: 29095, PF size: 35, HV: 48181.9048
+Gen 330, FEs: 29990, PF size: 40, HV: 48279.7619
+  Pareto front size: 40
+  Run time: 603.49s
+
+Results for DS08_HAPT:
+  IGD: 4.200323 +/- 4.686700
+  HV:  47989.8810 +/- 1013.7122
+  Mean baseline error: 12.78%
+  Combined PF: [[4.52, 62], [4.64, 58], [4.76, 57], [4.88, 56], [5.12, 54], [5.83, 52], [6.19, 51], [6.43, 50], [7.26, 48]]
+Error processing DS08_HAPT: name 'OPERATOR_NAMES' is not defined
+
+============================================================
+Processing: DS10_MultipleFeaturesDigit
+============================================================
+Samples: 1000, Features: 649, Classes: 10
+
+Run 1/3 (seed=42)
+  Baseline error (all features): 9.57%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1059, PF size: 5, HV: 38919.0000
+Gen 20, FEs: 2018, PF size: 6, HV: 41245.8571
+Gen 30, FEs: 2967, PF size: 5, HV: 43703.0000
+Gen 40, FEs: 3923, PF size: 5, HV: 46770.7143
+Gen 50, FEs: 4878, PF size: 4, HV: 48157.7143
+Gen 60, FEs: 5802, PF size: 12, HV: 49794.7143
+Gen 70, FEs: 6731, PF size: 8, HV: 51075.0000
+Gen 80, FEs: 7633, PF size: 8, HV: 52157.5714
+Gen 90, FEs: 8547, PF size: 5, HV: 52748.7143
+Gen 100, FEs: 9442, PF size: 2, HV: 53347.2857
+Gen 110, FEs: 10338, PF size: 3, HV: 54035.8571
+Gen 120, FEs: 11242, PF size: 4, HV: 54625.0000
+Gen 130, FEs: 12164, PF size: 5, HV: 55214.8571
+Gen 140, FEs: 13061, PF size: 13, HV: 55902.7143
+Gen 150, FEs: 13926, PF size: 14, HV: 56393.2857
+Gen 160, FEs: 14811, PF size: 12, HV: 56784.8571
+Gen 170, FEs: 15679, PF size: 12, HV: 57080.0000
+Gen 180, FEs: 16591, PF size: 6, HV: 57281.4286
+Gen 190, FEs: 17470, PF size: 20, HV: 57769.8571
+Gen 200, FEs: 18331, PF size: 23, HV: 57773.1429
+Gen 210, FEs: 19054, PF size: 23, HV: 57968.5714
+Gen 220, FEs: 19905, PF size: 42, HV: 58067.8571
+Gen 230, FEs: 20760, PF size: 20, HV: 58362.1429
+Gen 240, FEs: 21588, PF size: 26, HV: 58653.4286
+Gen 250, FEs: 22372, PF size: 60, HV: 58655.0000
+Gen 260, FEs: 23075, PF size: 12, HV: 58657.4286
+Gen 270, FEs: 23781, PF size: 100, HV: 58757.0000
+Gen 280, FEs: 24436, PF size: 10, HV: 58856.0000
+Gen 290, FEs: 25235, PF size: 13, HV: 59147.4286
+Gen 300, FEs: 25990, PF size: 80, HV: 59246.5714
+Gen 310, FEs: 26748, PF size: 15, HV: 59249.2857
+Gen 320, FEs: 27521, PF size: 15, HV: 59542.1429
+Gen 330, FEs: 28251, PF size: 23, HV: 59544.2857
+Gen 340, FEs: 28989, PF size: 15, HV: 59834.8571
+Gen 350, FEs: 29686, PF size: 100, HV: 59932.2857
+  Pareto front size: 100
+  Run time: 441.40s
+
+Run 2/3 (seed=142)
+  Baseline error (all features): 8.71%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1070, PF size: 5, HV: 38770.8571
+Gen 20, FEs: 2026, PF size: 10, HV: 41916.2857
+Gen 30, FEs: 2980, PF size: 10, HV: 43747.8571
+Gen 40, FEs: 3935, PF size: 4, HV: 46212.1429
+Gen 50, FEs: 4872, PF size: 8, HV: 47497.7143
+Gen 60, FEs: 5814, PF size: 2, HV: 48580.7143
+Gen 70, FEs: 6764, PF size: 4, HV: 50125.4286
+Gen 80, FEs: 7684, PF size: 6, HV: 51083.2857
+Gen 90, FEs: 8595, PF size: 5, HV: 51871.2857
+Gen 100, FEs: 9517, PF size: 2, HV: 52953.4286
+Gen 110, FEs: 10454, PF size: 4, HV: 53642.5714
+Gen 120, FEs: 11358, PF size: 9, HV: 54233.5714
+Gen 130, FEs: 12264, PF size: 5, HV: 54922.4286
+Gen 140, FEs: 13132, PF size: 10, HV: 55414.0000
+Gen 150, FEs: 14011, PF size: 11, HV: 56002.7143
+Gen 160, FEs: 14907, PF size: 6, HV: 56299.1429
+Gen 170, FEs: 15759, PF size: 11, HV: 56592.7143
+Gen 180, FEs: 16581, PF size: 4, HV: 56987.8571
+Gen 190, FEs: 17395, PF size: 13, HV: 57183.5714
+Gen 200, FEs: 18222, PF size: 17, HV: 57380.8571
+Gen 210, FEs: 19038, PF size: 5, HV: 57772.2857
+Gen 220, FEs: 19852, PF size: 17, HV: 57775.1429
+Gen 230, FEs: 20644, PF size: 30, HV: 58262.8571
+Gen 240, FEs: 21417, PF size: 24, HV: 58444.2857
+Gen 250, FEs: 22099, PF size: 100, HV: 58445.1429
+Gen 260, FEs: 22673, PF size: 30, HV: 58542.7143
+Gen 270, FEs: 23402, PF size: 66, HV: 58640.4286
+Gen 280, FEs: 24176, PF size: 11, HV: 58739.8571
+Gen 290, FEs: 24910, PF size: 19, HV: 58837.5714
+Gen 300, FEs: 25675, PF size: 27, HV: 59031.7143
+Gen 310, FEs: 26514, PF size: 38, HV: 59130.2857
+Gen 320, FEs: 27232, PF size: 100, HV: 59227.5714
+Gen 330, FEs: 27844, PF size: 39, HV: 59229.4286
+Gen 340, FEs: 28582, PF size: 66, HV: 59326.8571
+Gen 350, FEs: 29293, PF size: 23, HV: 59330.4286
+Gen 360, FEs: 30001, PF size: 23, HV: 59429.1429
+  Pareto front size: 23
+  Run time: 442.97s
+
+Run 3/3 (seed=242)
+  Baseline error (all features): 10.14%
+Initial FEs: 100, Target: 30000
+Gen 10, FEs: 1055, PF size: 9, HV: 39032.5714
+Gen 20, FEs: 2004, PF size: 7, HV: 41875.5714
+Gen 30, FEs: 2947, PF size: 6, HV: 43704.5714
+Gen 40, FEs: 3909, PF size: 7, HV: 46173.5714
+Gen 50, FEs: 4861, PF size: 12, HV: 47450.7143
+Gen 60, FEs: 5814, PF size: 6, HV: 48725.5714
+Gen 70, FEs: 6754, PF size: 4, HV: 50241.0000
+Gen 80, FEs: 7698, PF size: 8, HV: 51127.1429
+Gen 90, FEs: 8645, PF size: 7, HV: 52207.0000
+Gen 100, FEs: 9582, PF size: 7, HV: 52894.5714
+Gen 110, FEs: 10513, PF size: 8, HV: 53874.1429
+Gen 120, FEs: 11433, PF size: 6, HV: 54270.2857
+Gen 130, FEs: 12357, PF size: 6, HV: 54741.2857
+Gen 140, FEs: 13277, PF size: 4, HV: 55393.4286
+Gen 150, FEs: 14180, PF size: 3, HV: 55789.5714
+Gen 160, FEs: 15086, PF size: 10, HV: 56377.0000
+Gen 170, FEs: 16002, PF size: 14, HV: 56574.4286
+Gen 180, FEs: 16916, PF size: 22, HV: 57164.4286
+Gen 190, FEs: 17819, PF size: 22, HV: 57558.2857
+Gen 200, FEs: 18710, PF size: 15, HV: 57755.8571
+Gen 210, FEs: 19578, PF size: 23, HV: 58049.5714
+Gen 220, FEs: 20412, PF size: 12, HV: 58538.8571
+Gen 230, FEs: 21221, PF size: 36, HV: 58638.0000
+Gen 240, FEs: 22002, PF size: 29, HV: 58641.2857
+Gen 250, FEs: 22824, PF size: 20, HV: 58837.7143
+Gen 260, FEs: 23686, PF size: 24, HV: 58936.8571
+Gen 270, FEs: 24555, PF size: 15, HV: 58938.4286
+Gen 280, FEs: 25402, PF size: 11, HV: 59134.1429
+Gen 290, FEs: 26242, PF size: 17, HV: 59331.8571
+Gen 300, FEs: 27048, PF size: 14, HV: 59528.5714
+Gen 310, FEs: 27840, PF size: 65, HV: 59627.4286
+Gen 320, FEs: 28621, PF size: 39, HV: 59920.0000
+Gen 330, FEs: 29469, PF size: 69, HV: 60019.4286
+  Pareto front size: 100
+  Run time: 424.10s
+
+Results for DS10_MultipleFeaturesDigit:
+  IGD: 1.946260 +/- 0.162535
+  HV:  59794.1905 +/- 260.5044
+  Mean baseline error: 9.48%
+  Combined PF: [[1.43, 62], [1.57, 50], [1.71, 48], [1.86, 47], [2.14, 46], [2.29, 43], [2.57, 41]]
+Error processing DS10_MultipleFeaturesDigit: name 'OPERATOR_NAMES' is not defined
+
+============================================================
+All experiments completed!
+Results saved to 'results/' directory
+============================================================
+
+[Done] exited with code=0 in 5693.224 seconds
+
