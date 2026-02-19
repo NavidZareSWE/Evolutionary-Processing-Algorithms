@@ -1,3 +1,6 @@
+import os
+import json
+import time
 import numpy as np
 from pymoo.indicators.hv import HV
 from pymoo.indicators.igd import IGD
@@ -196,7 +199,6 @@ def uniform_mutation(individual, mutation_rate):
     return mutant
 
 # ============================================================================
-# PARETO DOMINANCE AND NON-DOMINATED SORTING
 # ============================================================================
 
 
@@ -204,11 +206,11 @@ def dominates(obj1, obj2):
     """Check if obj1 dominates obj2 (minimization).
 
     Checks if the first objective vector is Pareto dominant over the second objective vector.
-    containing two elements: [error, n_features]. 
+    containing two elements: [error, n_features].
 
     Args:
-        obj1,obj2 (tuple/list): The first objective vector, e.g., [15.5, 42] where 15.5% 
-                           error is achieved using 42 features. 
+        obj1,obj2 (tuple/list): The first objective vector, e.g., [15.5, 42] where 15.5%
+                           error is achieved using 42 features.
     Returns:
         bool: True if obj1 is Pareto dominant over obj2, False otherwise.
 
@@ -260,7 +262,8 @@ def fast_non_dominated_sort(population, objectives):
 
 
 def crowding_distance(objectives, front_indices):
-
+    # Assigns infinite crowding distance to solutions if there are 2 or fewer in the front.
+    # Reason: This preserves boundary points, ensuring they remain in the selection process.
     if len(front_indices) <= 2:
         return {idx: float('inf') for idx in front_indices}
 
@@ -268,7 +271,6 @@ def crowding_distance(objectives, front_indices):
     distances = {idx: 0.0 for idx in front_indices}
 
     for m in range(n_objectives):
-        # Sort by objective m
         sorted_indices = sorted(front_indices, key=lambda x: objectives[x][m])
 
         # Boundary points get infinite distance
@@ -283,7 +285,9 @@ def crowding_distance(objectives, front_indices):
         if obj_range == 0:
             continue
 
-        # Calculate distances for intermediate points
+        # Calculate distances for intermediate points (non-boundary solutions)
+        # Larger gap -> larger crowding distance
+        # Smaller gap -> more crowded -> smaller distance
         for i in range(1, len(sorted_indices) - 1):
             distances[sorted_indices[i]] += (
                 (objectives[sorted_indices[i + 1]][m] -
@@ -295,7 +299,6 @@ def crowding_distance(objectives, front_indices):
 
 
 # ============================================================================
-# PERFORMANCE METRICS
 # ============================================================================
 
 
@@ -325,55 +328,39 @@ def merge_pareto_fronts(fronts_list):
     return sorted(non_dominated, key=lambda x: x[0])
 
 
-# ============================================================================
-# MOBGA-AOS ALGORITHM
-# ============================================================================
-
 class MOBGA_AOS:
-
     def __init__(self, n_features, max_fes=30000, pop_size=100,
-                 crossover_rate=0.9, lp=5, verbose=True):
+                 crossover_rate=0.9, lp=5):
         self.n_features = n_features
         self.max_fes = max_fes
         self.pop_size = pop_size
         self.crossover_rate = crossover_rate
         self.mutation_rate = 1.0 / n_features
         self.lp = lp
-        self.verbose = verbose
-
-        # Number of crossover operators
-        self.n_operators = len(CROSSOVER_OPERATORS)
-
-        # Operator Selection Probabilities (opSelectProb)
-        self.opSelectProb = np.ones(self.n_operators) / self.n_operators
-
-        # Reward/Penalty matrices for LP generations
-        self.RD = np.zeros((lp, self.n_operators))  # Rewards
-        self.PN = np.zeros((lp, self.n_operators))  # Penalties
-
-        # Data
+        self.num_x_over_operators = len(CROSSOVER_OPERATORS)
         self.X = None
         self.y = None
-
-        # Tracking
         self.n_fes = 0
         self.generation = 0
         self.hv_history = []
         self.opSelectProb_history = []
-
-        # Fitness cache to avoid re-evaluating identical individuals
         self.fitness_cache = {}
 
+        # Operator Selection Probabilities (opSelectProb)
+        self.opSelectProb = np.ones(
+            self.num_x_over_operators) / self.num_x_over_operators
+
+        # Reward/Penalty matrices for LP(Learning Period for AOS) generations
+        self.RD = np.zeros((lp, self.num_x_over_operators))  # Rewards
+        self.PN = np.zeros((lp, self.num_x_over_operators))  # Penalties
+
     def load_data(self, X, y):
-        """Load and normalize training data."""
         self.X = normalize_data(X)
         self.y = y
 
     def initialize_population(self):
-        """Initialize random binary population."""
         population = []
         for _ in range(self.pop_size):
-            # Random binary individual
             individual = np.random.randint(0, 2, self.n_features)
             population.append(individual)
         return population
@@ -383,7 +370,7 @@ class MOBGA_AOS:
         cache_key = tuple(individual)
 
         if cache_key in self.fitness_cache:
-            # Return cached result (doesn't count as new FE)
+            # Return cached result (doesn't count as new Fitness Evaluation)
             return self.fitness_cache[cache_key]
 
         error = cross_validation_error(
@@ -396,53 +383,51 @@ class MOBGA_AOS:
         return result
 
     def roulette_wheel_selection(self, probabilities):
-        """Select an operator index using roulette wheel selection."""
+        # Return the cumulative sum of the elements along a given axis.
         cumsum = np.cumsum(probabilities)
-        r = np.random.random()
-        for i, cs in enumerate(cumsum):
-            if r <= cs:
+        rand = np.random.random()
+        for i, cumulative_sum in enumerate(cumsum):
+            if rand <= cumulative_sum:
                 return i
+        # Fallback: If none of the cumulative sums match (unlikely),
+        # it defaults to returning the last index.
         return len(probabilities) - 1
 
     def binary_tournament_selection(self, population, objectives):
-        """Select a parent using binary tournament selection."""
         i, j = np.random.choice(len(population), 2, replace=False)
 
-        # Compare by dominance
         if dominates(objectives[i], objectives[j]):
             return i
         elif dominates(objectives[j], objectives[i]):
             return j
         else:
-            # Non-dominated: random choice
             return np.random.choice([i, j])
 
-    def credit_assignment(self, parents, children, parent_objs, child_objs, operator_idx):
+    def credit_assignment(self, parent_objs, child_objs):
         reward = 0
         penalty = 0
 
-        # Check dominance between parents
         if dominates(parent_objs[0], parent_objs[1]):
             # Parent 0 dominates parent 1
             dominating_parent = parent_objs[0]
-            for c_obj in child_objs:
-                if dominates(dominating_parent, c_obj):
+            for child_obj in child_objs:
+                if dominates(dominating_parent, child_obj):
                     penalty += 1
                 else:
                     reward += 1
         elif dominates(parent_objs[1], parent_objs[0]):
             # Parent 1 dominates parent 0
             dominating_parent = parent_objs[1]
-            for c_obj in child_objs:
-                if dominates(dominating_parent, c_obj):
+            for child_obj in child_objs:
+                if dominates(dominating_parent, child_obj):
                     penalty += 1
                 else:
                     reward += 1
         else:
             # Parents are non-dominated to each other
-            for c_obj in child_objs:
+            for child_obj in child_objs:
                 # Child is rewarded if not dominated by both parents
-                if dominates(parent_objs[0], c_obj) or dominates(parent_objs[1], c_obj):
+                if dominates(parent_objs[0], child_obj) or dominates(parent_objs[1], child_obj):
                     penalty += 1
                 else:
                     reward += 1
@@ -450,29 +435,30 @@ class MOBGA_AOS:
         return reward, penalty
 
     def update_opSelectProb(self, gen_in_lp):
-        delta = 0.0001  # Small value to prevent division by zero
+        delta = 0.0001  # Avoid division by zero
 
-        # Sum rewards and penalties for each operator over LP generations
-        S1 = np.sum(self.RD[:gen_in_lp], axis=0)  # Total rewards
-        S2 = np.sum(self.PN[:gen_in_lp], axis=0)  # Total penalties
+        # Sum rewards and penalties for each operator over LP (Learning Period for AOS) generations
+        total_rewards = np.sum(self.RD[:gen_in_lp], axis=0)
+        total_penalties = np.sum(self.PN[:gen_in_lp], axis=0)
 
-        # Calculate S3 (avoid division by zero)
-        S3 = np.where(S1 == 0, delta, S1)
+        # Check if the reward is zero and replace it with delta if true; otherwise, keep the original value
+        safe_rewards = np.where(total_rewards == 0, delta, total_rewards)
 
-        # Calculate S4 (probability for each operator)
-        S4 = S1 / (S3 + S2)
+        # Calculate operator performance score (selection probability basis)
+        # High reward, low penalty -> value near 1
+        # Low reward, high penalty -> value near 0
+        operator_scores = total_rewards / (safe_rewards + total_penalties)
 
-        # Normalize to get final opSelectProb
-        total = np.sum(S4)
+        total = np.sum(operator_scores)
         if total > 0:
-            self.opSelectProb = S4 / total
+            self.opSelectProb = operator_scores / total
         else:
-            # Reset to uniform if all zero
-            self.opSelectProb = np.ones(self.n_operators) / self.n_operators
+            self.opSelectProb = np.ones(
+                self.num_x_over_operators) / self.num_x_over_operators
 
         # Reset RD and PN matrices
-        self.RD = np.zeros((self.lp, self.n_operators))
-        self.PN = np.zeros((self.lp, self.n_operators))
+        self.RD = np.zeros((self.lp, self.num_x_over_operators))
+        self.PN = np.zeros((self.lp, self.num_x_over_operators))
 
     def environmental_selection(self, combined_pop, combined_objs):
         fronts = fast_non_dominated_sort(combined_pop, combined_objs)
@@ -486,11 +472,9 @@ class MOBGA_AOS:
                     new_population.append(combined_pop[idx])
                     new_objectives.append(combined_objs[idx])
             else:
-                # Need to select some from this front based on crowding distance
                 remaining = self.pop_size - len(new_population)
                 distances = crowding_distance(combined_objs, front)
 
-                # Sort by crowding distance (descending)
                 sorted_front = sorted(
                     front, key=lambda x: distances[x], reverse=True)
 
@@ -502,8 +486,8 @@ class MOBGA_AOS:
         return new_population, new_objectives
 
     def get_pareto_front(self, population, objectives):
-        """Extract the first Pareto front with native Python types."""
         fronts = fast_non_dominated_sort(population, objectives)
+        # Extract Only the First Front
         pareto_front = [[float(objectives[idx][0]), int(objectives[idx][1])]
                         for idx in fronts[0]]
         return pareto_front
@@ -511,23 +495,20 @@ class MOBGA_AOS:
     def run(self, seed=42):
         np.random.seed(seed)
 
-        # Initialize population
+        # ############### POPULATION INITIALIZATION ###############
         population = self.initialize_population()
         objectives = [self.evaluate(ind) for ind in population]
-
         generation_in_lp = 0
         reference_point = [100.0, float(self.n_features + 1)]
-
-        if self.verbose:
-            print("Initial FEs: {}, Target: {}".format(self.n_fes, self.max_fes))
+        print("Initial FEs: {}, Target: {}".format(self.n_fes, self.max_fes))
 
         while self.n_fes < self.max_fes:
             offspring_population = []
             offspring_objectives = []
 
             # Rewards/Penalties for this generation
-            n_reward = np.zeros(self.n_operators)
-            n_penalty = np.zeros(self.n_operators)
+            n_reward = np.zeros(self.num_x_over_operators)
+            n_penalty = np.zeros(self.num_x_over_operators)
 
             # Generate N/2 pairs of offspring
             for _ in range(self.pop_size // 2):
@@ -538,7 +519,7 @@ class MOBGA_AOS:
                 operator_idx = self.roulette_wheel_selection(self.opSelectProb)
                 crossover_op = CROSSOVER_OPERATORS[operator_idx]
 
-                # Select two parents using binary tournament
+                # ############### PARENT SELECTION ###############
                 p1_idx = self.binary_tournament_selection(
                     population, objectives)
                 p2_idx = self.binary_tournament_selection(
@@ -548,13 +529,13 @@ class MOBGA_AOS:
                 parent2 = population[p2_idx].copy()
                 parent_objs = [objectives[p1_idx], objectives[p2_idx]]
 
-                # Apply crossover with probability
+                # ############### CROSSOVER ###############
                 if np.random.random() < self.crossover_rate:
                     child1, child2 = crossover_op(parent1, parent2)
                 else:
                     child1, child2 = parent1.copy(), parent2.copy()
 
-                # Apply mutation
+                # ############### MUTATION ###############
                 child1 = uniform_mutation(child1, self.mutation_rate)
                 child2 = uniform_mutation(child2, self.mutation_rate)
 
@@ -565,8 +546,7 @@ class MOBGA_AOS:
 
                 # Credit assignment
                 reward, penalty = self.credit_assignment(
-                    [parent1, parent2], [child1, child2],
-                    parent_objs, child_objs, operator_idx
+                    parent_objs, child_objs
                 )
                 n_reward[operator_idx] += reward
                 n_penalty[operator_idx] += penalty
@@ -585,6 +565,7 @@ class MOBGA_AOS:
                 self.update_opSelectProb(generation_in_lp)
                 generation_in_lp = 0
 
+            # ############### SURVIVOR SELECTION ###############
             # Environmental selection (NSGA-II)
             combined_pop = population + offspring_population
             combined_objs = objectives + offspring_objectives
@@ -600,7 +581,7 @@ class MOBGA_AOS:
 
             self.generation += 1
 
-            if self.verbose and self.generation % 10 == 0:
+            if self.generation % 10 == 0:
                 print("Gen {}, FEs: {}, PF size: {}, HV: {:.4f}".format(
                     self.generation, self.n_fes, len(pareto_front), hv))
 
@@ -611,9 +592,6 @@ class MOBGA_AOS:
 
 
 if __name__ == "__main__":
-    import os
-    import json
-    import time
 
     DATASETS = {
         'DS02': ('DS02.csv', 'LungCancer', 10000),
@@ -667,14 +645,12 @@ if __name__ == "__main__":
                 print("  Baseline error (all features): {:.2f}%".format(
                     baseline_error))
 
-                # Initialize and run MOBGA-AOS
                 mobga = MOBGA_AOS(
                     n_features=n_features,
                     max_fes=max_fitness_evaluations,
                     pop_size=100,
                     crossover_rate=0.9,
-                    lp=5,
-                    verbose=True
+                    lp=5
                 )
                 mobga.load_data(X_train, y_train)
 
@@ -696,6 +672,10 @@ if __name__ == "__main__":
             # Compute metrics
             reference_point = [100.0, float(n_features + 1)]
 
+            # Using pymoo's built-in HV and IGD indicators instead of custom implementations.
+            # HV measures the volume of objective space dominated by the Pareto front (higher = better).
+            # IGD measures the average distance from the true front to the obtained front (lower = better).
+            # pymoo handles edge cases, is numerically stable, and supports N-dimensional fronts.
             igd_ind = IGD(pf=np.array(true_pf))
             igd_values = [igd_ind(np.array(front)) if front else float(
                 'inf') for front in all_fronts]
